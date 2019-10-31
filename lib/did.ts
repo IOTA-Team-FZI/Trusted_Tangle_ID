@@ -1,10 +1,10 @@
 import { Trytes } from "@iota/core/typings/types";
-import { TangleConnector } from "./tangle_connector";
+import TangleConnector from "./tangleConnector";
 
-export class DID {
-  private seed: Trytes;
+export default class DID {
+  private seed!: Trytes;
 
-  static fromSeed(seed: Trytes): void {
+  fromSeed(seed: Trytes): void {
     this.seed = seed;
     // generate key pair from seed
     // build DidDocument

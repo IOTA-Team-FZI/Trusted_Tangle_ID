@@ -1,14 +1,16 @@
 import { API, composeAPI } from "@iota/core";
 import { Trytes } from "@iota/core/typings/types";
-import { DidDocument, Did, Claim, methodSpecId } from "./types";
+import { DidDocument, methodSpecId } from "./types";
+const Mam = require("@iota/mam");
 
 /**
  * @classdesc This class is used to interact with the tangle.
  *
  * @typicalname tangle_connector
  */
-export class TangleConnector {
-  public static readonly DEFAULT_PROVIDER = "nodes.dev.iota.org";
+export default class TangleConnector {
+  public static readonly DEFAULT_PROVIDER =
+    "https://nodes.devnet.thetangle.org:443";
   /**
    * the classs' own api
    */
@@ -36,8 +38,10 @@ export class TangleConnector {
    *
    * @param {Trytes} id - The id of that shall be fetched
    */
-  async fetchDID(id: methodSpecId): Promise<DidDocument> {
+  async fetchDID(id: methodSpecId): Promise<any> {
+    // DidDocument
     // TODO
+    await Mam.fetchSingle(id);
   }
 
   /**
@@ -56,7 +60,8 @@ export class TangleConnector {
    * @param {Trytes} id - The id about which the claim refers
    * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
    */
-  async fetchClaim(id: methodSpecId, claimIdentifier: string): Promise<Claim> {
+  async fetchClaim(id: methodSpecId, claimIdentifier: string): Promise<any> {
+    // Claim
     // TODO
   }
 

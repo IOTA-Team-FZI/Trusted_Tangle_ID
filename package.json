@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node lib/did.ts",
-    "test": "ts-node test/indes.ts"
+    "test": "ts-node test/index.ts"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,8 @@
     "@types/node": "^12.12.3"
   },
   "dependencies": {
-    "@iota/core": "^1.0.0-beta.21"
+    "@iota/core": "^1.0.0-beta.21",
+    "@iota/mam": "^0.7.3",
+    "typescript": "^3.6.4"
   }
 }
