@@ -4,7 +4,9 @@
   "description": "Reference implementation for the trusted tangle id protocol",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "ts-node lib/did.ts",
+    "test": "ts-node test/indes.ts"
   },
   "repository": {
     "type": "git",
@@ -22,7 +24,9 @@
   },
   "homepage": "https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID#readme",
   "devDependencies": {
-    "eslint": "^6.6.0"
+    "eslint": "^6.6.0",
+    "ts-node": "^8.4.1",
+    "@types/node": "^12.12.3"
   },
   "dependencies": {
     "@iota/core": "^1.0.0-beta.21"

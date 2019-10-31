@@ -1,4 +1,4 @@
-import { API } from "@iota/core";
+import { API, composeAPI } from "@iota/core";
 import { Trytes } from "@iota/core/typings/types";
 import { DidDocument, Did, Claim, methodSpecId } from "./types";
 
@@ -8,6 +8,7 @@ import { DidDocument, Did, Claim, methodSpecId } from "./types";
  * @typicalname tangle_connector
  */
 export class TangleConnector {
+  public static readonly DEFAULT_PROVIDER = "nodes.dev.iota.org";
   /**
    * the classs' own api
    */
@@ -15,20 +16,27 @@ export class TangleConnector {
 
   /**
    * @constructs TangleConnector
-   * @param {API} [options.iota] - A composed IOTA API for communication with a full node
+   * @param {string} provider - A full node URL
    */
-  constructor( iota?: API ) {
-    this.iota = iota;
+  constructor(provider?: string) {
+    if (provider === undefined) {
+      this.iota = composeAPI({
+        provider: TangleConnector.DEFAULT_PROVIDER
+      });
+    } else {
+      this.iota = composeAPI({
+        provider: provider
+      });
+    }
   }
 
   /**
    *
    * Fetches the DID document of the requested id from the tangle
    *
-   * @param {API} [options.iota]
    * @param {Trytes} id - The id of that shall be fetched
    */
-  static async fetchDID(id: methodSpecId, {iota}:{iota?: API}): Promise<DidDocument> {
+  async fetchDID(id: methodSpecId): Promise<DidDocument> {
     // TODO
   }
 
@@ -36,40 +44,35 @@ export class TangleConnector {
    *
    * Fetches the list of trusted ids of the requested id from the tangle
    *
-   * @param {API} [options.iota] - A composed IOTA API for communication with a full node
    * @param {Trytes} id - The id of which the trusted ids shall be fetched
    */
-  static async fetchTrustedIDs(id: methodSpecId, {iota}:{iota?: API}): Promise<Trytes[]> {
+  async fetchTrustedIDs(id: methodSpecId): Promise<Trytes[]> {
     // TODO
-    return new Promise<Trytes[]>
+    return [];
   }
 
   /**
    *
-   * @param {API} [options.iota] - A composed IOTA API for communication with a full node
    * @param {Trytes} id - The id about which the claim refers
    * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
    */
-  static async fetchClaim(id:methodSpecId, claimIdentifier:string, {iota}:{iota?: API}) : Claim {
+  async fetchClaim(id: methodSpecId, claimIdentifier: string): Promise<Claim> {
     // TODO
   }
 
   /**
    *
-   * @param {API} [optionsiota] - A composed IOTA API for communication with a full node
    * @param {Trytes} certifier - The id which attested the claim
    * @param {*} target - The id about which the claim was made
    * @param {*} bundleHash - Bundle hash of the claim transaction for identification
    */
-  static async fetchAttestation(
+  async fetchAttestation(
     certifier: methodSpecId,
     target: methodSpecId,
-    {iota, bundleHash}:{iota?: API, bundleHash?: Trytes}
+    { bundleHash }: { bundleHash?: Trytes }
   ) {
     // TODO
   }
 
-  static publishDid(did: DidDocument): void {
-
-  }
+  static publishDid(did: DidDocument): void {}
 }
