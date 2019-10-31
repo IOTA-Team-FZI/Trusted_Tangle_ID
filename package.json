@@ -1,0 +1,30 @@
+{
+  "name": "trusted_tangle_id",
+  "version": "0.0.1",
+  "description": "Reference implementation for the trusted tangle id protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID.git"
+  },
+  "keywords": [
+    "IOTA",
+    "DID",
+    "WOT"
+  ],
+  "author": "Robin Lamberti, Christian Fries",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID/issues"
+  },
+  "homepage": "https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID#readme",
+  "devDependencies": {
+    "eslint": "^6.6.0"
+  },
+  "dependencies": {
+    "@iota/core": "^1.0.0-beta.21"
+  }
+}
