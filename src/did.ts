@@ -1,13 +1,19 @@
+<<<<<<< HEAD
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid } from './tangleConnector';
-import { DidDocument } from './types';
+import { publishDid, fetchDid } from './tangleConnector';
+import { DidDocument, MethodSpecId } from './types';
 import { API } from '@iota/core';
+=======
+import { Trytes } from '@iota/core/typings/types';
+import { publishDid, fetchDid } from './tangleConnector';
+import { DidDocument, MethodSpecId } from './types';
+>>>>>>> 66d9e9dc615bc03cf0a0ac2fcdb3bc8f33349022
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
-export const METHOD_NAME = '';
+export const METHOD_NAME = 'trusttangle';
 
 const ec = new elliptic.ec('curve25519');
 
@@ -62,5 +68,9 @@ export default class DID {
       this.published = true
       return result
     }
+  }
+
+  static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
+    return fetchDid(did, provider);
   }
 }
