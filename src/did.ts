@@ -25,4 +25,9 @@ export default class DID {
     }
     return new DID(seed, document, channel)
   }
+
+  public async publishDid() {
+    // TODO check if already published
+    return publishDid(this.mamChannel, this.document)
+  }
 }

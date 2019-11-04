@@ -1,7 +1,10 @@
-import { API, composeAPI } from "@iota/core";
 import { Trytes } from "@iota/core/typings/types";
 import { DidDocument, MethodSpecId } from "./types";
-import { fetchSingle, MamState } from "@iota/mam";
+import { fetchSingle, MamState, create, attach } from "@iota/mam";
+import { asciiToTrytes } from '@iota/converter'
+
+export const MWM = 9
+export const tag = 'TRUSTED9DID'
 
 /**
  *
@@ -50,4 +53,8 @@ async function fetchAttestation(
   // TODO
 }
 
-export async function publishDid(mamChannel: MamState, did: DidDocument) {}
+export async function publishDid(mamChannel: MamState, did: DidDocument) {
+  const message = create(mamChannel, asciiToTrytes(JSON.stringify(did)))
+  const response = await attach(message.payload, message.address, undefined, MWM, tag)
+  return response
+}
