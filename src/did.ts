@@ -1,4 +1,4 @@
-import { Trytes } from '@iota/core/typings/types';
+import { Trytes, Hash } from '@iota/core/typings/types';
 import { publishDid } from './tangleConnector';
 import { DidDocument } from './types';
 import { API } from '@iota/core';
@@ -12,6 +12,10 @@ export const METHOD_NAME = '';
 const ec = new elliptic.ec('curve25519');
 
 export default class DID {
+  private published = false;
+  private trustedIds = new Map<Trytes, number>();
+  private lastTrustedIdTx?: Hash;
+
   constructor(public document: DidDocument, private readonly seed: Trytes, private keyPair: elliptic.ec.KeyPair, private mamChannel: Mam.MamState) {}
 
   static fromSeed(seed: Trytes, provider = DEFAULT_PROVIDER) {
@@ -29,16 +33,34 @@ export default class DID {
   }
 
   async sync() {
-    const result = await Mam.fetch(Mam.getRoot(this.mamChannel), 'public');
+    const fromStart: Mam.MamState = {
+      ...this.mamChannel,
+      channel: {
+        ...this.mamChannel.channel,
+        start: 0,
+      }
+    }
+    const result = await Mam.fetch(Mam.getRoot(fromStart), 'public');
     if (result instanceof Error) {
-
+      throw result;
     } else {
-
+      if (result.messages !== undefined && result.messages.length > 0) {
+        this.published = true;
+        this.document = JSON.parse(result.messages[0]);
+      }
+      this.mamChannel = fromStart;
     }
   }
 
+  public publishTrustedIds(entries: Map<Trytes, number>) {
+    
+  }
+
   public async publishDid() {
-    // TODO check if already published
-    return publishDid(this.mamChannel, this.document)
+    if (!this.published) {
+      const result = publishDid(this.mamChannel, this.document)
+      this.published = true
+      return result
+    }
   }
 }
