@@ -1,6 +1,6 @@
 import { Trytes } from '@iota/core/typings/types';
-import { publishDid, fetchDid } from './tangleConnector';
-import { DidDocument, MethodSpecId } from './types';
+import { publishDid, fetchDid, publishClaim } from './tangleConnector';
+import { DidDocument, MethodSpecId, Claim } from './types';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
@@ -44,4 +44,11 @@ export default class DID {
   static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
     return fetchDid(did, provider);
   }
+
+  static async publishClaim(claim: Claim, provider=DEFAULT_PROVIDER) {
+    // TODO offer build claim
+    return publishClaim(claim, provider)
+  }
+
+  
 }
