@@ -1,13 +1,13 @@
-import { Trytes, Hash } from "@iota/core/typings/types"
-import { DidDocument, MethodSpecId, Claim } from "./types"
-import { init, fetchSingle, MamState, create, attach } from "@iota/mam"
-import { asciiToTrytes, trytesToAscii, trytes } from '@iota/converter'
-const Kerl = require('@iota/kerl').default
-
+import Kerl from '@iota/kerl'
 import { composeAPI } from '@iota/core'
+import { Trytes, Tag, Hash } from '@iota/core/typings/types';
+import { DidDocument, MethodSpecId, Claim } from './types';
+import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
+import { asciiToTrytes, trytesToAscii, trytes } from '@iota/converter'
 
-export const MWM = 9 // for mainnet use 14
-export const tag = 'TRUSTED9DID'
+
+export const DEFAULT_MWM = 9
+export const DEFAULT_TAG = 'TRUSTED9DID'
 
 /**
  * 
@@ -83,9 +83,10 @@ async function fetchAttestation(
   // TODO
 }
 
-export async function publishDid(mamChannel: MamState, did: DidDocument) {
+export async function publishDid(mamChannel: MamState, did: DidDocument, 
+    {mwm = DEFAULT_MWM, tag = DEFAULT_TAG}: {mwm?: number, tag?: Tag} = {mwm: DEFAULT_MWM, tag: DEFAULT_TAG}) {
   const message = create(mamChannel, asciiToTrytes(JSON.stringify(did)))
-  const response = await attach(message.payload, message.address, undefined, MWM, tag)
+  const response = await attach(message.payload, message.address, undefined, mwm, tag)
   return response
 }
 
@@ -103,6 +104,6 @@ export async function publishClaim(claim: Claim, provider: string) {
     }
     ]
     const trytes = await iota.prepareTransfers('9', transfers)
-    const bundle = await iota.sendTrytes(trytes, 3, MWM)
+    const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
     return bundle
 }
