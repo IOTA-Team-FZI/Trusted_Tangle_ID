@@ -36,4 +36,9 @@ export default class DID {
 
     }
   }
+
+  public async publishDid() {
+    // TODO check if already published
+    return publishDid(this.mamChannel, this.document)
+  }
 }
