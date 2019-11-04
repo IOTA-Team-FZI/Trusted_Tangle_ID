@@ -1,13 +1,7 @@
-<<<<<<< HEAD
 import { Trytes, Hash } from '@iota/core/typings/types';
 import { publishDid, fetchDid } from './tangleConnector';
 import { DidDocument, MethodSpecId } from './types';
 import { API } from '@iota/core';
-=======
-import { Trytes } from '@iota/core/typings/types';
-import { publishDid, fetchDid } from './tangleConnector';
-import { DidDocument, MethodSpecId } from './types';
->>>>>>> 66d9e9dc615bc03cf0a0ac2fcdb3bc8f33349022
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
