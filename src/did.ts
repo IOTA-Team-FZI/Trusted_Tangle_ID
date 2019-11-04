@@ -42,7 +42,7 @@ export default class DID {
     return publishDid(this.mamChannel, this.document)
   }
 
-  static async fetchDid(did: MethodSpecId) {
-    return fetchDid(did, DEFAULT_PROVIDER);
+  static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
+    return fetchDid(did, provider);
   }
 }
