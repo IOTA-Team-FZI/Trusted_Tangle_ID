@@ -1,13 +1,12 @@
 import { Trytes } from '@iota/core/typings/types';
 import { publishDid, fetchDid } from './tangleConnector';
 import { DidDocument, MethodSpecId } from './types';
-import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
-export const METHOD_NAME = '';
+export const METHOD_NAME = 'trusttangle';
 
 const ec = new elliptic.ec('curve25519');
 
