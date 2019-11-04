@@ -1,9 +1,18 @@
-import { Trytes } from "@iota/core/typings/types";
+import { Trytes, Hash } from "@iota/core/typings/types";
 
-export type methodSpecId = string | Trytes[];
+export type MethodSpecId = Trytes;
+
 export type DidDocument = {
   "@context": string | string[];
-  id: methodSpecId;
-  publicKey?: string; // TODO choose encryption scheme
+  id: MethodSpecId;
+  publicKey: string; // TODO choose encryption scheme
 };
-export type Claim = {};
+
+export type Claim = {
+  type: string;
+  content: any;
+  target: MethodSpecId;
+  issuer: MethodSpecId;
+  signature: string;
+  predecessor: Hash;
+};
