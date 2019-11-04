@@ -1,7 +1,7 @@
 import { Trytes } from "@iota/core/typings/types";
 import { DidDocument, MethodSpecId } from "./types";
-import { fetchSingle, MamState, create, attach } from "@iota/mam";
-import { asciiToTrytes } from '@iota/converter'
+import { init, fetchSingle, MamState, create, attach } from "@iota/mam";
+import { asciiToTrytes, trytesToAscii } from '@iota/converter'
 
 export const MWM = 9
 export const tag = 'TRUSTED9DID'
@@ -12,10 +12,21 @@ export const tag = 'TRUSTED9DID'
  *
  * @param {Trytes} id - The id of that shall be fetched
  */
-async function fetchDID(id: MethodSpecId): Promise<any> {
-  // DidDocument
-  // TODO
+export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidDocument | undefined> {
+ 
+  init(provider);
+
   const result = await fetchSingle(id, 'public');
+
+  if (result instanceof Error || result.payload === undefined) {
+    if (result instanceof Error) {
+      throw result
+    } else {
+      return undefined
+    }
+  } else {
+    return JSON.parse(trytesToAscii(result.payload))
+  }
 }
 
 /**

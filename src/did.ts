@@ -1,6 +1,6 @@
 import { Trytes } from '@iota/core/typings/types';
-import { publishDid } from './tangleConnector';
-import { DidDocument } from './types';
+import { publishDid, fetchDid } from './tangleConnector';
+import { DidDocument, MethodSpecId } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
@@ -37,8 +37,12 @@ export default class DID {
     }
   }
 
-  public async publishDid() {
+  async publishDid() {
     // TODO check if already published
     return publishDid(this.mamChannel, this.document)
+  }
+
+  static async fetchDid(did: MethodSpecId) {
+    return fetchDid(did, DEFAULT_PROVIDER);
   }
 }
