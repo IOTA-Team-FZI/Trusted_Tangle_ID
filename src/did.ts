@@ -57,7 +57,11 @@ export default class DID {
     // TODO sync trusted id's as well
   }
 
-  public publishTrustedIds(entries: Map<Trytes, number>) {
+  public publishTrustedIds(entries: Map<Trytes, number>, predecessor: Hash) {
+    const payload = {
+      entries,
+      predecessor
+    };
     
   }
 
