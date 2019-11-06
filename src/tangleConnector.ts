@@ -3,7 +3,7 @@ import { composeAPI } from '@iota/core'
 import { Trytes, Tag, Hash } from '@iota/core/typings/types';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
-import { asciiToTrytes, trytesToAscii, trytes } from '@iota/converter'
+import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
 
 
 export const DEFAULT_MWM = 9
@@ -17,8 +17,8 @@ export const DEFAULT_TAG = 'TRUSTED9DID'
 export function getClaimAddress(id: MethodSpecId, type: string) {
   const kerl = new Kerl()
   kerl.initialize()
-  kerl.absorb(id, 0, id.length)
-  kerl.absorb(type, 0, type.length)
+  kerl.absorb(trits(id), 0, id.length)
+  kerl.absorb(trits(type), 0, type.length)
   const buffer = new Int8Array(Kerl.HASH_LENGTH)
   kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH)
   return trytes(buffer)

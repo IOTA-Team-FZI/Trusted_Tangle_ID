@@ -32,6 +32,10 @@ export default class DID {
     return new DID(document, seed, keyPair, channel)
   }
 
+  getMethodSpecificIdentifier() {
+    return this.document.id.split(':')[2]
+  }
+
   async sync() {
     const fromStart: Mam.MamState = {
       ...this.mamChannel,
@@ -50,6 +54,7 @@ export default class DID {
       }
       this.mamChannel = fromStart;
     }
+    // TODO sync trusted id's as well
   }
 
   public publishTrustedIds(entries: Map<Trytes, number>, predecessor: Hash) {
@@ -71,4 +76,23 @@ export default class DID {
   static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
     return fetchDid(did, provider);
   }
+
+  async publishClaim(claim?: Claim, target?: MethodSpecId, type?: string, content={}, provider=DEFAULT_PROVIDER) {
+    // TODO offer build claim
+    if ( claim ) {
+      return publishClaim(claim, provider)
+    }
+    if ( !target ) {
+      throw new Error('Claim parameters not complete. Specify target.')
+    }
+    if ( !type ) {
+      throw new Error('Claim parameters not complete. Specify type.')
+    }
+    // build claim to publish
+    var newClaim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    // TODO find prddecessor
+    // TODO sign claim
+  }
+
+
 }

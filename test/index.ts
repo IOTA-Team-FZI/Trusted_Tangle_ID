@@ -5,4 +5,4 @@ var SEED =
 
 var did = DID.fromSeed(SEED);
 
-console.log(did)
+console.log(did.getIdentifier())
