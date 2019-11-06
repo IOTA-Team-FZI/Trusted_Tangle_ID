@@ -52,7 +52,11 @@ export default class DID {
     }
   }
 
-  public publishTrustedIds(entries: Map<Trytes, number>) {
+  public publishTrustedIds(entries: Map<Trytes, number>, predecessor: Hash) {
+    const payload = {
+      entries,
+      predecessor
+    };
     
   }
 
@@ -67,11 +71,4 @@ export default class DID {
   static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
     return fetchDid(did, provider);
   }
-
-  static async publishClaim(claim: Claim, provider=DEFAULT_PROVIDER) {
-    // TODO offer build claim
-    return publishClaim(claim, provider)
-  }
-
-
 }
