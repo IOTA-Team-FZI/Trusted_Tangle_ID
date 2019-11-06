@@ -91,11 +91,11 @@ export default class DID {
     if ( predecessors.length > 0 ) {
       // TODO get latest claim and add to claim
     } 
-    const signature = this.keyPair.sign(new Buffer(JSON.stringify(newClaim)).toString('hex'))
+    const signature = this.keyPair.sign(Buffer.from(JSON.stringify(newClaim)).toString('hex'))
     return {claim: newClaim, signature: signature}
   }
 
-  static async publishClaim(signedClaim:{claim: Claim, signature: string}, provider=DEFAULT_PROVIDER) {
+  static async publishClaim(signedClaim:{claim: Claim, signature: any}, provider=DEFAULT_PROVIDER) {
     return publishClaim(signedClaim, provider)
   }
 
