@@ -1,5 +1,5 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaim } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
@@ -85,14 +85,18 @@ export default class DID {
       throw new Error('Claim parameters not complete. Specify type.')
     }
     // build claim to publish
-    var newClaim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
-    // TODO find predecessor
-    // TODO sign claim
+    var newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    // find predecessor
+    const predecessors = await fetchClaim(target, type)
+    if ( predecessors.length > 0 ) {
+      // TODO get latest claim and add to claim
+    } 
+    const signature = this.keyPair.sign(new Buffer(JSON.stringify(newClaim)).toString('hex'))
+    return {claim: newClaim, signature: signature}
   }
 
-  static async publishClaim(claim: Claim, provider=DEFAULT_PROVIDER) {
-    // TODO offer build claim
-    return publishClaim(claim, provider)
+  static async publishClaim(signedClaim:{claim: Claim, signature: string}, provider=DEFAULT_PROVIDER) {
+    return publishClaim(signedClaim, provider)
   }
 
 

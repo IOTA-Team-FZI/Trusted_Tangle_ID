@@ -64,9 +64,10 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
  * @param {Trytes} target - The id about which the claim was made
  * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
  */
-async function fetchClaim(target: MethodSpecId, claimIdentifier: string): Promise<any> {
+export async function fetchClaim(target: MethodSpecId, type: string) {
   // Claim
   // TODO
+  return []
 }
 
 /**
@@ -90,12 +91,12 @@ export async function publishDid(mamChannel: MamState, did: DidDocument,
   return response
 }
 
-export async function publishClaim(claim: Claim, provider: string) {
+export async function publishClaim(signedClaim:{claim: Claim, signature: string}, provider: string) {
   const iota = composeAPI({
     provider: provider
   })
-  const address = getClaimAddress(claim.target, claim.type)
-  const message = asciiToTrytes(JSON.stringify(claim))
+  const address = getClaimAddress(signedClaim.claim.target, signedClaim.claim.type)
+  const message = asciiToTrytes(JSON.stringify(signedClaim.claim))
   const transfers = [
     {
         value: 0,
