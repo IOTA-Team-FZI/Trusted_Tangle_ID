@@ -1,18 +1,14 @@
 import DID from "../src/did";
-import { getClaimAddress } from '../src/tangleConnector';
 import {generate} from 'randomstring';
 
-var SEED = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
+const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
-var did = DID.fromSeed(SEED);
+const did = DID.fromSeed(seed);
 
-// console.log(did)
+console.log(did)
 
-var claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer')
-claim.then((value) => {
-    console.log(value)
-    return DID.publishClaim(value)
-})
-.then((value) => {
-    console.log(value)
+const claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer')
+console.log(claim)
+DID.publishClaim(claim).then((value) => {
+  console.log(value)
 });

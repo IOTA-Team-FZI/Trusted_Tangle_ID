@@ -119,7 +119,8 @@ export async function publishClaim(signedClaim:{claim: Claim, signature: string}
     return bundle
 }
 
-export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, address: Hash, provider: string) {
+export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, address: Hash, provider: string, 
+    {mwm = DEFAULT_MWM, tag = DEFAULT_TAG}: {mwm?: number, tag?: Tag} = {mwm: DEFAULT_MWM, tag: DEFAULT_TAG}) {
   const iota = composeAPI({
     provider
   });
@@ -127,9 +128,10 @@ export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, add
   const transfers = [{
     value: 0,
     address,
-    message
+    message,
+    tag
   }];
   const trytes = await iota.prepareTransfers('9'.repeat(81), transfers);
-  const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM);
+  const bundle = await iota.sendTrytes(trytes, 3, mwm);
   return bundle;
 }

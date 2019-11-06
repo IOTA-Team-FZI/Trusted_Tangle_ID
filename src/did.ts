@@ -84,6 +84,7 @@ export default class DID {
     const result = await publishTrustedIds(message, address, provider);
     if (result) {
       this.lastTrustedIdBundle = result[0].bundle;
+      Array.from(entries.keys()).forEach((k) => this.trustedIds.set(k, entries.get(k)!));
     }
     return result;
   }
@@ -100,7 +101,7 @@ export default class DID {
     return fetchDid(did, provider);
   }
 
-  async createClaim(target: MethodSpecId, type: string, content={}) {
+  createClaim(target: MethodSpecId, type: string, content={}) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.')
     }
