@@ -9,7 +9,7 @@ import { createHash } from 'crypto';
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
 export const METHOD_NAME = 'trusttangle';
 
-const ec = new elliptic.ec('curve25519');
+const ec = new elliptic.ec('ed25519');
 
 export default class DID {
   private published = false;
@@ -85,13 +85,14 @@ export default class DID {
       throw new Error('Claim parameters not complete. Specify type.')
     }
     // build claim to publish
-    var newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    let newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
     // find predecessor
-    const predecessors = await fetchClaim(target, type)
+    const predecessors = []// await fetchClaim(target, type)
     if ( predecessors.length > 0 ) {
       // TODO get latest claim and add to claim
-    } 
-    const signature = this.keyPair.sign(Buffer.from(JSON.stringify(newClaim)).toString('hex'))
+    }
+    let buffer = Buffer.from(JSON.stringify(newClaim)).toString('hex')
+    const signature = this.keyPair.sign(buffer).toDER('hex')
     return {claim: newClaim, signature: signature}
   }
 
