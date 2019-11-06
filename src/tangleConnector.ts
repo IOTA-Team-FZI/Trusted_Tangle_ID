@@ -22,7 +22,8 @@ export function padTritsMultipleOf(base:number, minLength:number, trits:Int8Arra
 export function getClaimAddress(id: MethodSpecId, type: string) {
   const kerl = new Kerl()
   const idTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(id))
-  const typeTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(type))
+  const typeTrytes = asciiToTrytes(type);
+  const typeTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(typeTrytes))
   kerl.initialize()
   // Fliegt beim absorben ohne Fehler raus. Bitte ma drübergucken
   kerl.absorb(idTrits, 0, idTrits.length)
