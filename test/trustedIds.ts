@@ -11,5 +11,4 @@ entries.set('YXCVBNMJHFDXVSFLWOUSFDZSHVGZRRRRRRRRRRRRRRRRRRRRRRRRRRRDIUFHUIZFUGD
 
 const did = DID.fromSeed('ERTZJHGEJKWTVRZHEVNOUGRNHZURIDVGSGUHRIGUVZHNFGUIUSGHFDFAOGHFVJCKGNHFVGJFHDSFCJHGB');
 
-const result = did.publishTrustedIds(entries);
-console.log(JSON.stringify(result))
+did.publishTrustedIds(entries).then((bundle) => console.log(bundle));

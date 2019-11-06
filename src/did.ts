@@ -14,7 +14,7 @@ const ec = new elliptic.ec('ed25519');
 export default class DID {
   private published = false;
   private trustedIds = new Map<Trytes, number>();
-  private lastTrustedIdTx?: Hash;
+  private lastTrustedIdBundle?: Hash;
 
   constructor(public document: DidDocument, private readonly seed: Trytes, private keyPair: elliptic.ec.KeyPair, private mamChannel: Mam.MamState) {}
 
@@ -57,13 +57,14 @@ export default class DID {
     // TODO sync trusted id's as well
   }
 
-  public async publishTrustedIds(entries: Map<Trytes, number>, predecessor?: Hash, provider = DEFAULT_PROVIDER) {  
+  public async publishTrustedIds(entries: Map<Trytes, number>, provider = DEFAULT_PROVIDER) {  
     const obj = Array.from(entries.keys())
       .map((k) => ({[k]: entries.get(k)!}))
       .reduce((kv, acc) => ({...kv, ...acc}), {});
+    
     const payload = {
       entries: obj,
-      predecessor,
+      predecessor: this.lastTrustedIdBundle,
     };
     const signature = this.keyPair.sign(Buffer.from(JSON.stringify(payload))).toDER('hex');
     const message = {
@@ -80,7 +81,11 @@ export default class DID {
     };
     const address = Mam.getRoot(patched);
     this.mamChannel.channel.start = save;
-    return await publishTrustedIds(message, address, provider);
+    const result = await publishTrustedIds(message, address, provider);
+    if (result) {
+      this.lastTrustedIdBundle = result[0].bundle;
+    }
+    return result;
   }
 
   public async publishDid() {
