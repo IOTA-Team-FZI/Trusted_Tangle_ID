@@ -32,6 +32,10 @@ export default class DID {
     return new DID(document, seed, keyPair, channel)
   }
 
+  getIdentifier() {
+    return this.document.id.split(':')[2]
+  }
+
   async sync() {
     const fromStart: Mam.MamState = {
       ...this.mamChannel,
