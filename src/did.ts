@@ -1,5 +1,5 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, publishTrustedIds } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
@@ -9,7 +9,7 @@ import { createHash } from 'crypto';
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
 export const METHOD_NAME = 'trusttangle';
 
-const ec = new elliptic.ec('curve25519');
+const ec = new elliptic.ec('ed25519');
 
 export default class DID {
   private published = false;
@@ -57,12 +57,30 @@ export default class DID {
     // TODO sync trusted id's as well
   }
 
-  public publishTrustedIds(entries: Map<Trytes, number>, predecessor: Hash) {
+  public async publishTrustedIds(entries: Map<Trytes, number>, predecessor?: Hash, provider = DEFAULT_PROVIDER) {  
+    const obj = Array.from(entries.keys())
+      .map((k) => ({[k]: entries.get(k)!}))
+      .reduce((kv, acc) => ({...kv, ...acc}), {});
     const payload = {
-      entries,
-      predecessor
+      entries: obj,
+      predecessor,
     };
-    
+    const signature = this.keyPair.sign(Buffer.from(JSON.stringify(payload))).toDER('hex');
+    const message = {
+      ...payload,
+      signature,
+    };
+    const save = this.mamChannel.channel.start;
+    const patched = {
+      ...this.mamChannel,
+      channel: {
+        ...this.mamChannel.channel,
+        start: 1,
+      }
+    };
+    const address = Mam.getRoot(patched);
+    this.mamChannel.channel.start = save;
+    return await publishTrustedIds(message, address, provider);
   }
 
   public async publishDid() {

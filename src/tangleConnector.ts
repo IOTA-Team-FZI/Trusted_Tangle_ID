@@ -1,10 +1,9 @@
 import Kerl from '@iota/kerl'
 import { composeAPI } from '@iota/core'
 import { Trytes, Tag, Hash } from '@iota/core/typings/types';
-import { DidDocument, MethodSpecId, Claim } from './types';
+import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
 import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
-
 
 export const DEFAULT_MWM = 9
 export const DEFAULT_TAG = 'TRUSTED9DID'
@@ -106,4 +105,19 @@ export async function publishClaim(claim: Claim, provider: string) {
     const trytes = await iota.prepareTransfers('9', transfers)
     const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
     return bundle
+}
+
+export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, address: Hash, provider: string) {
+  const iota = composeAPI({
+    provider
+  });
+  const message = asciiToTrytes(JSON.stringify(trustedIdsMessage));
+  const transfers = [{
+    value: 0,
+    address,
+    message
+  }];
+  const trytes = await iota.prepareTransfers('9', transfers);
+  const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM);
+  return bundle;
 }

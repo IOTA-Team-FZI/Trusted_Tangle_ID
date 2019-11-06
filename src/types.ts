@@ -18,7 +18,9 @@ export type Claim = {
 };
 
 export type TrustedIdMessage = {
-  entries: Map<Trytes, number>;
+  entries: {
+    [x: string]: number;
+  };
   signature: string;
   predecessor?: Hash;
 }
