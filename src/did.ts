@@ -73,11 +73,7 @@ export default class DID {
     return fetchDid(did, provider);
   }
 
-  async publishClaim(claim?: Claim, target?: MethodSpecId, type?: string, content={}, provider=DEFAULT_PROVIDER) {
-    // TODO offer build claim
-    if ( claim ) {
-      return publishClaim(claim, provider)
-    }
+  async createClaim(target: MethodSpecId, type: string, content={}) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.')
     }
@@ -86,8 +82,13 @@ export default class DID {
     }
     // build claim to publish
     var newClaim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
-    // TODO find prddecessor
+    // TODO find predecessor
     // TODO sign claim
+  }
+
+  static async publishClaim(claim: Claim, provider=DEFAULT_PROVIDER) {
+    // TODO offer build claim
+    return publishClaim(claim, provider)
   }
 
 
