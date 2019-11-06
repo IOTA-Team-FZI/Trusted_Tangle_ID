@@ -1,5 +1,6 @@
 import Kerl from '@iota/kerl'
 import { composeAPI } from '@iota/core'
+import { padTrits } from '@iota/pad'
 import { Trytes, Tag, Hash } from '@iota/core/typings/types';
 import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
@@ -8,6 +9,11 @@ import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
 export const DEFAULT_MWM = 9
 export const DEFAULT_TAG = 'TRUSTED9DID'
 
+export function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
+  const length = trits.length <= minLength ? minLength : (Math.floor(trits.length / base) + 1) * base
+  return padTrits(length)(trits)
+}
+
 /**
  * 
  * @param {MethodSpecId} id - id of the claim target
@@ -15,9 +21,13 @@ export const DEFAULT_TAG = 'TRUSTED9DID'
  */
 export function getClaimAddress(id: MethodSpecId, type: string) {
   const kerl = new Kerl()
+  const idTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(id))
+  const typeTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(type))
   kerl.initialize()
-  kerl.absorb(trits(id), 0, id.length)
-  kerl.absorb(trits(type), 0, type.length)
+  // Fliegt beim absorben ohne Fehler raus. Bitte ma drübergucken
+  kerl.absorb(idTrits, 0, idTrits.length)
+  kerl.absorb(typeTrits, 0, typeTrits.length)
+
   const buffer = new Int8Array(Kerl.HASH_LENGTH)
   kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH)
   return trytes(buffer)
@@ -63,9 +73,10 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
  * @param {Trytes} target - The id about which the claim was made
  * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
  */
-async function fetchClaim(target: MethodSpecId, claimIdentifier: string): Promise<any> {
+export async function fetchClaim(target: MethodSpecId, type: string) {
   // Claim
   // TODO
+  return []
 }
 
 /**
@@ -89,12 +100,12 @@ export async function publishDid(mamChannel: MamState, did: DidDocument,
   return response
 }
 
-export async function publishClaim(claim: Claim, provider: string) {
+export async function publishClaim(signedClaim:{claim: Claim, signature: string}, provider: string) {
   const iota = composeAPI({
     provider: provider
   })
-  const address = getClaimAddress(claim.target, claim.type)
-  const message = asciiToTrytes(JSON.stringify(claim))
+  const address = getClaimAddress(signedClaim.claim.target, signedClaim.claim.type)
+  const message = asciiToTrytes(JSON.stringify(signedClaim))
   const transfers = [
     {
         value: 0,

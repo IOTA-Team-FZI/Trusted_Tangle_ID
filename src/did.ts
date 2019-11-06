@@ -1,5 +1,5 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim, publishTrustedIds } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
@@ -95,11 +95,7 @@ export default class DID {
     return fetchDid(did, provider);
   }
 
-  async publishClaim(claim?: Claim, target?: MethodSpecId, type?: string, content={}, provider=DEFAULT_PROVIDER) {
-    // TODO offer build claim
-    if ( claim ) {
-      return publishClaim(claim, provider)
-    }
+  async createClaim(target: MethodSpecId, type: string, content={}) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.')
     }
@@ -107,9 +103,19 @@ export default class DID {
       throw new Error('Claim parameters not complete. Specify type.')
     }
     // build claim to publish
-    var newClaim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
-    // TODO find prddecessor
-    // TODO sign claim
+    let newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    // find predecessor
+    const predecessors = []// await fetchClaim(target, type)
+    if ( predecessors.length > 0 ) {
+      // TODO get latest claim and add to claim
+    }
+    let buffer = Buffer.from(JSON.stringify(newClaim)).toString('hex')
+    const signature = this.keyPair.sign(buffer).toDER('hex')
+    return {claim: newClaim, signature: signature}
+  }
+
+  static async publishClaim(signedClaim:{claim: Claim, signature: any}, provider=DEFAULT_PROVIDER) {
+    return publishClaim(signedClaim, provider)
   }
 
 

@@ -13,8 +13,7 @@ export type Claim = {
   content: any;
   target: MethodSpecId;
   issuer: MethodSpecId;
-  signature: string;
-  predecessor: Hash;
+  predecessor?: Hash;
 };
 
 export type TrustedIdMessage = {
