@@ -96,10 +96,11 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   })
   const address = getClaimAddress(target, type)
   const claimTransactions = await iota.findTransactionObjects({addresses: [address]})
-  const claims = claimTransactions.map((transaction:Transaction) => JSON.parse(trytesToString(transaction.signatureMessageFragment)))
-  const initClaims = claims.filter((claim:any) => claim.claim.predecessor === undefined)
-  let latestClaims = new Set()
+  const claims = claimTransactions.map((transaction:Transaction) => ({claim: JSON.parse(trytesToString(transaction.signatureMessageFragment)), hash: transaction.bundle}))
+  const initClaims = claims.filter((claim:any) => claim.claim.claim.predecessor === undefined)
   // TODO get latest claims
+
+
 
   return claims // latest claim
 }
