@@ -21,7 +21,7 @@ DID.publishClaim(claim).then((value) => {
     iota.getBundle(value[0].hash).then((bundle: any) => {
       console.log(bundle[0].signatureMessageFragment.length)
       console.log(bundle[0].signatureMessageFragment)
-      const result = trytesToAscii(bundle[0].signatureMessageFragment)
+      const result = trytesToAscii(bundle[0].signatureMessageFragment+'9')
       console.log(result)
     }).catch((err: any) => {
       console.error(err)
