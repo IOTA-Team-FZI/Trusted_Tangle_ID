@@ -124,5 +124,9 @@ export default class DID {
     return publishClaim(signedClaim, provider)
   }
 
+  static async fetchClaim(id:MethodSpecId, type:string, provider=DEFAULT_PROVIDER) {
+    return fetchClaim(id, type, provider)
+  }
+
 
 }

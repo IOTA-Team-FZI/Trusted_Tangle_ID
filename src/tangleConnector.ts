@@ -1,13 +1,20 @@
 import Kerl from '@iota/kerl'
 import { composeAPI } from '@iota/core'
 import { padTrits } from '@iota/pad'
-import { Trytes, Tag, Hash } from '@iota/core/typings/types';
+import { Trytes, Tag, Hash, Transaction } from '@iota/core/typings/types';
 import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
 import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
 
 export const DEFAULT_MWM = 9
 export const DEFAULT_TAG = 'TRUSTED9DID'
+
+function trytesToString(input:Trytes) {
+  if (input.length % 2) {
+    input += '9'
+  }
+  return Array.from(trytesToAscii(input)).filter((value) => value.charCodeAt(0) !== 0).join("")
+}
 
 function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
   const length = trits.length <= minLength ? minLength : (Math.floor(trits.length / base) + 1) * base
@@ -88,10 +95,13 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
     provider: provider
   })
   const address = getClaimAddress(target, type)
-  iota.findTransactionObjects({addresses: [address]})
-  // TODO read out message
+  const claimTransactions = await iota.findTransactionObjects({addresses: [address]})
+  const claims = claimTransactions.map((transaction:Transaction) => JSON.parse(trytesToString(transaction.signatureMessageFragment)))
+  const initClaims = claims.filter((claim:any) => claim.claim.predecessor === undefined)
+  let latestClaims = new Set()
+  // TODO get latest claims
 
-  return {} // latest claim
+  return claims // latest claim
 }
 
 /**

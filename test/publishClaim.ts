@@ -18,10 +18,7 @@ DID.publishClaim(claim).then((value) => {
     provider: 'https://nodes.devnet.thetangle.org:443'
   })
   setTimeout(() => {
-    iota.getBundle(value[0].hash).then((bundle: any) => {
-      console.log(bundle[0].signatureMessageFragment.length)
-      console.log(bundle[0].signatureMessageFragment)
-      const result = trytesToAscii(bundle[0].signatureMessageFragment+'9')
+    DID.fetchClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer').then((result: any) => {
       console.log(result)
     }).catch((err: any) => {
       console.error(err)
