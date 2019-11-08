@@ -8,6 +8,7 @@ import { createHash } from 'crypto';
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
 export const METHOD_NAME = 'trusttangle';
+export const CALIM_CONTENT_LIMIT = 140
 
 const ec = new elliptic.ec('ed25519');
 
@@ -107,6 +108,9 @@ export default class DID {
     }
     if ( !type ) {
       throw new Error('Claim parameters not complete. Specify type.')
+    }
+    if (JSON.stringify(content).length > CALIM_CONTENT_LIMIT) {
+      throw new Error('Claim content exceeds the limit of '+ CALIM_CONTENT_LIMIT + ' characters')
     }
     // build claim to publish
     let newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
