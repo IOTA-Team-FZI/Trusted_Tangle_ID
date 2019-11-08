@@ -16,22 +16,30 @@ export function padTritsMultipleOf(base:number, minLength:number, trits:Int8Arra
 
 /**
  * 
+ * Takes an array of trytes which get hashed to an unique address
+ * 
+ * @param input - Array of Trytes
+ */
+export function hashToAddress(input:Trytes[]) {
+  const kerl = new Kerl()
+  kerl.initialize()
+  input.forEach(element => {
+    const padded_trits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(element))
+    kerl.absorb(padded_trits, 0, padded_trits.length)
+  })
+  const buffer = new Int8Array(Kerl.HASH_LENGTH)
+  kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH)
+  return trytes(buffer)
+}
+
+/**
+ * 
  * @param {MethodSpecId} id - id of the claim target
  * @param {string} type - claim specific type. Example: 'eClass:manufacturer'
  */
 export function getClaimAddress(id: MethodSpecId, type: string) {
-  const kerl = new Kerl()
-  const idTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(id))
   const typeTrytes = asciiToTrytes(type);
-  const typeTrits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(typeTrytes))
-  kerl.initialize()
-  // Fliegt beim absorben ohne Fehler raus. Bitte ma drübergucken
-  kerl.absorb(idTrits, 0, idTrits.length)
-  kerl.absorb(typeTrits, 0, typeTrits.length)
-
-  const buffer = new Int8Array(Kerl.HASH_LENGTH)
-  kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH)
-  return trytes(buffer)
+  return hashToAddress([id, typeTrytes])
 }
 
 /**
