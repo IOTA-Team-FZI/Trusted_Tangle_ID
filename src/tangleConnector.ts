@@ -9,7 +9,7 @@ import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
 export const DEFAULT_MWM = 9
 export const DEFAULT_TAG = 'TRUSTED9DID'
 
-export function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
+function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
   const length = trits.length <= minLength ? minLength : (Math.floor(trits.length / base) + 1) * base
   return padTrits(length)(trits)
 }
@@ -81,11 +81,17 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
  *
  * @param {Trytes} target - The id about which the claim was made
  * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
+ * @param {string} provider - Url of the the provider node
  */
-export async function fetchClaim(target: MethodSpecId, type: string) {
-  // Claim
-  // TODO
-  return []
+export async function fetchClaim(target: MethodSpecId, type: string, provider: string) {
+  const iota = composeAPI({
+    provider: provider
+  })
+  const address = getClaimAddress(target, type)
+  iota.findTransactionObjects({addresses: [address]})
+  // TODO read out message
+
+  return {} // latest claim
 }
 
 /**
