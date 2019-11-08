@@ -7,9 +7,9 @@ const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
 const did = DID.fromSeed(seed);
 
-// console.log(did)
+const claimContent = {name: "FZI Karlsruhe"}
 
-const claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer')
+const claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer', claimContent)
 // console.log(claim)
 DID.publishClaim(claim).then((value) => {
   console.log(value)
@@ -19,7 +19,9 @@ DID.publishClaim(claim).then((value) => {
   })
   setTimeout(() => {
     iota.getBundle(value[0].hash).then((bundle: any) => {
-      const result = trytesToAscii(bundle[0].message)
+      console.log(bundle[0].signatureMessageFragment.length)
+      console.log(bundle[0].signatureMessageFragment)
+      const result = trytesToAscii(bundle[0].signatureMessageFragment)
       console.log(result)
     }).catch((err: any) => {
       console.error(err)

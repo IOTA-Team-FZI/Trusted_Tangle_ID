@@ -122,7 +122,7 @@ export async function publishClaim(signedClaim:{claim: Claim, signature: string}
         message: message
     }
     ]
-    const trytes = await iota.prepareTransfers('9'.repeat(81), transfers)
+    const trytes = await iota.prepareTransfers('9'.repeat(81), transfers) 
     const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
     return bundle
 }
