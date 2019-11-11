@@ -53,6 +53,15 @@ export function getClaimAddress(id: MethodSpecId, type: string) {
 }
 
 /**
+ * 
+ * @param {MethodSpecId} id - id of the claim target
+ * @param {string} type - claim specific type. Example: 'eClass:manufacturer'
+ */
+export function getAttestationAddress(id: MethodSpecId, bundleHash: Hash) {
+  return hashToAddress([id, bundleHash])
+}
+
+/**
  *
  * Fetches the DID document of the requested id from the tangle
  *
@@ -87,6 +96,29 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
   return []
 }
 
+export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: Hash, provider:string) {
+  const iota = composeAPI({
+    provider: provider
+  })
+  const address = getAttestationAddress(issuerId, claimBundleHash)
+  const attestationTransactions = await iota.findTransactionObjects({addresses: [address]})
+  let attestations:any = []
+  attestationTransactions.forEach((transaction:Transaction) => {
+    attestations.push(trytesToString(JSON.parse(trytesToString(transaction.signatureMessageFragment))))
+  })
+  // check if every issuer has really signed the attestation
+  const issuer = await fetchDid(issuerId, provider)
+  attestations.forEach(async (attestation:any) => {
+    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash), attestation, ec.keyFromPublic(issuer.publicKey, 'hex'))){
+      attestations.splice(attestations.indexOf(attestation), 1)
+    }
+  })
+  if (attestations.length > 1) {
+    throw new Error('More than one attestation. Attestation revokation not implemented yet.')
+  }
+  return attestations
+}
+
 /**
  *
  * @param {Trytes} target - The id about which the claim was made
@@ -115,7 +147,7 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   })
 
   if (Object.keys(claims).length > 1) {
-    throw new Error('More than one claim. Multi pfetch not implemented yet.')
+    throw new Error('More than one claim. Multi fetch not implemented yet.')
   }
   // if there is just one claim
   /*if (Object.keys(claims).length === 1) {
@@ -141,19 +173,6 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   return claims // latest claims
 }
 
-/**
- *
- * @param {MethodSpecId} certifier - The id which attested the claim
- * @param {MethodSpecId} target - The id about which the claim was made
- * @param {Hash} bundleHash - Bundle hash of the claim transaction for identification
- */
-async function fetchAttestation(
-  certifier: MethodSpecId,
-  target: MethodSpecId,
-  bundleHash?: Hash
-) {
-  // TODO
-}
 
 export async function publishDid(mamChannel: MamState, did: DidDocument, 
     {mwm = DEFAULT_MWM, tag = DEFAULT_TAG}: {mwm?: number, tag?: Tag} = {mwm: DEFAULT_MWM, tag: DEFAULT_TAG}) {
@@ -201,7 +220,7 @@ export async function publishAttestation(issuer: MethodSpecId, bundleHash:Hash, 
   const iota = composeAPI({
     provider: provider
   })
-  const address = getClaimAddress(issuer, bundleHash)
+  const address = getAttestationAddress(issuer, bundleHash)
   const message = asciiToTrytes(JSON.stringify(signature))
   const transfers = [
     {

@@ -1,9 +1,9 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds, publishAttestation } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds, publishAttestation, fetchAttestation } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
-import elliptic from 'elliptic';
+import elliptic, { ec } from 'elliptic';
 import { createHash } from 'crypto';
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
@@ -137,8 +137,26 @@ export default class DID {
     return fetchClaim(id, type, provider)
   }
 
-  static verifyClaim(id:MethodSpecId, type:string, provider=DEFAULT_PROVIDER) {
-    const claim = fetchClaim(id, type, provider)
+  static async fetchAttestation(issuer: MethodSpecId, claimBundleHash: Hash, provider=DEFAULT_PROVIDER) {
+    return fetchAttestation(issuer, claimBundleHash, provider)
+  }
+
+  static async verifyClaim(targetId:MethodSpecId, type:string, verifierId?: MethodSpecId, verifierKey?: string, provider=DEFAULT_PROVIDER) {
+    if (verifierId === undefined && verifierKey === undefined) {
+      throw new Error('No verifier or key specified')
+    }
+    const claim = await fetchClaim(targetId, type, provider)
+    // TODO handle multiple claims
+    if (verifierKey) {
+      return true // TODO
+    } 
+    if (verifierId) {
+      const verifier = await fetchDid(verifierId, provider)
+      if (verifier) {
+        return true // TODO
+      }
+    }
+    return false
   }
 
 
