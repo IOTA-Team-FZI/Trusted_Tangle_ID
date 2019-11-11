@@ -4,10 +4,13 @@ import { padTrits } from '@iota/pad'
 import { Trytes, Tag, Hash, Transaction } from '@iota/core/typings/types';
 import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
-import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter'
+import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter';
+import elliptic from 'elliptic';
 
 export const DEFAULT_MWM = 9
 export const DEFAULT_TAG = 'TRUSTED9DID'
+
+const ec = new elliptic.ec('ed25519');
 
 function trytesToString(input:Trytes) {
   if (input.length % 2) {
@@ -96,13 +99,46 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   })
   const address = getClaimAddress(target, type)
   const claimTransactions = await iota.findTransactionObjects({addresses: [address]})
-  const claims = claimTransactions.map((transaction:Transaction) => ({claim: JSON.parse(trytesToString(transaction.signatureMessageFragment)), hash: transaction.bundle}))
-  const initClaims = claims.filter((claim:any) => claim.claim.claim.predecessor === undefined)
-  // TODO get latest claims
+  let claims:any = {}
+  claimTransactions.forEach((transaction:Transaction) => {
+    claims[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment))
+  });
+  
+  // check if every issuer has really signed the claim
+  Object.keys(claims).forEach(async hash => {
+    const issuer = await fetchDid(claims[hash].claim.issuer, provider)
+    const signature = claims[hash].signature
+    if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
+      console.log('Deleting ', claims[hash])
+      delete claims[hash]
+    }
+  })
+
+  if (Object.keys(claims).length > 1) {
+    throw new Error('More than one claim. Multi pfetch not implemented yet.')
+  }
+  // if there is just one claim
+  /*if (Object.keys(claims).length === 1) {
+    return claims
+  }
+  let latestClaims:any = {}
+  Object.keys(claims).forEach(hash => {
+    if (claims[hash].claim.predecessor === undefined) {
+      latestClaims[hash] = claims[hash]
+    }
+  });
+
+  let checkedFollowUpClaims = latestClaims.length
+
+  while (checkedFollowUpClaims < claims.length) {
+    Object.keys(claims).forEach((element:any) => {
+        // TODO check signature the same ? 
+        checkedFollowUpClaims++
+      });
+  }*/
 
 
-
-  return claims // latest claim
+  return claims // latest claims
 }
 
 /**
