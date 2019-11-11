@@ -7,6 +7,12 @@ const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
 const did = DID.fromSeed(seed);
 
+var result = did.publishDid()
+result.then(function (value) {
+  console.log('DID published')
+    console.log(value)
+});
+
 const claimContent = {name: "FZI Karlsruhe"}
 
 const claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer', claimContent)
