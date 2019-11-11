@@ -1,5 +1,5 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds, publishAttestation } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
@@ -128,8 +128,17 @@ export default class DID {
     return publishClaim(signedClaim, provider)
   }
 
+  async publishAttestation(claimBundleHash: Hash, provider=DEFAULT_PROVIDER) {
+    const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex')
+    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, signature, provider)
+  }
+
   static async fetchClaim(id:MethodSpecId, type:string, provider=DEFAULT_PROVIDER) {
     return fetchClaim(id, type, provider)
+  }
+
+  static verifyClaim(id:MethodSpecId, type:string, provider=DEFAULT_PROVIDER) {
+    const claim = fetchClaim(id, type, provider)
   }
 
 

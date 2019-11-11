@@ -103,7 +103,7 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   claimTransactions.forEach((transaction:Transaction) => {
     claims[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment))
   });
-  
+
   // check if every issuer has really signed the claim
   Object.keys(claims).forEach(async hash => {
     const issuer = await fetchDid(claims[hash].claim.issuer, provider)
@@ -195,4 +195,23 @@ export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, add
   const trytes = await iota.prepareTransfers('9'.repeat(81), transfers);
   const bundle = await iota.sendTrytes(trytes, 3, mwm);
   return bundle;
+}
+
+export async function publishAttestation(issuer: MethodSpecId, bundleHash:Hash, signature:string, provider:string) {
+  const iota = composeAPI({
+    provider: provider
+  })
+  const address = getClaimAddress(issuer, bundleHash)
+  const message = asciiToTrytes(JSON.stringify(signature))
+  const transfers = [
+    {
+        value: 0,
+        address: address,
+        message: message
+    }
+    ]
+    const trytes = await iota.prepareTransfers('9'.repeat(81), transfers) 
+    const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
+    return bundle
+
 }
