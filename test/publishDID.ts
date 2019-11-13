@@ -5,7 +5,10 @@ const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
 const did = DID.fromSeed(seed);
 
-console.log(did)
+console.log(did);
 
-const result = did.publishDid()
-result.then((value) => console.log(value));
+const result = did.publishDid();
+result
+  .then((value) => console.log(value))
+  .then(() => DID.fetchDid(did.getMethodSpecificIdentifier()))
+  .then((result) => console.log(result));

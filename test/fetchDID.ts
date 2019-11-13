@@ -1,4 +1,11 @@
 import DID from '../src/did';
 
-const result = DID.fetchDid('JWMNQRTTSARV9GJFZPKINBRNXVI9YDJEZNDEXSXWKVSIDPFZBOLUWZUALDFEKEIDGHUTKJBSEXMPGCMCO')
-result.then((value) => console.log(value));
+// malformed did
+DID.fetchDid('JWMNQRTTSARV9GJFZPKINBRNXVI9YDJEZNDEXSXWKVSIDPFZBOLUWZUALDFEKEIDGHUTKJBSEXMPGCMCO')
+  .then((value) => console.log(value))
+  .catch((error) => console.error(error));
+
+DID.fetchDid('BCCUTCJPDSVICBAJUDCNPWBCNRDDKIITLHMQQKLNXKVIPPZHBORSXFEJHWLOKLMDZKE9DWVZFBIQT9LVH')
+  .then((value) => console.log(value))
+  .catch((error) => console.error(error));
+  

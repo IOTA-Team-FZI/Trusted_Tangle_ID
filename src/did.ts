@@ -99,7 +99,15 @@ export default class DID {
   }
 
   static async fetchDid(did: MethodSpecId, provider = DEFAULT_PROVIDER) {
-    return fetchDid(did, provider);
+    const doc = await fetchDid(did, provider);
+    if (!doc) {
+      return undefined;
+    }
+    if (doc.id !== `did:${METHOD_NAME}:${did}`) {
+      throw new Error('DID doesn\'t match location');
+    } else {
+      return doc;
+    }
   }
 
   createClaim(target: MethodSpecId, type: string, content = {}) {
