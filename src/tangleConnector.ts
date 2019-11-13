@@ -7,21 +7,21 @@ import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
 import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter';
 import elliptic from 'elliptic';
 
-export const DEFAULT_MWM = 9
-export const DEFAULT_TAG = 'TRUSTED9DID'
+export const DEFAULT_MWM = 9;
+export const DEFAULT_TAG = 'TRUSTED9DID';
 
 const ec = new elliptic.ec('ed25519');
 
-function trytesToString(input:Trytes) {
+function trytesToString(input: Trytes) {
   if (input.length % 2) {
-    input += '9'
+    input += '9';
   }
-  return Array.from(trytesToAscii(input)).filter((value) => value.charCodeAt(0) !== 0).join("")
+  return Array.from(trytesToAscii(input)).filter((value) => value.charCodeAt(0) !== 0).join("");
 }
 
-function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
-  const length = trits.length <= minLength ? minLength : (Math.floor(trits.length / base) + 1) * base
-  return padTrits(length)(trits)
+function padTritsMultipleOf(base: number, minLength: number, trits: Int8Array) {
+  const length = trits.length <= minLength ? minLength : (Math.floor(trits.length / base) + 1) * base;
+  return padTrits(length)(trits);
 }
 
 /**
@@ -30,16 +30,16 @@ function padTritsMultipleOf(base:number, minLength:number, trits:Int8Array) {
  * 
  * @param input - Array of Trytes
  */
-export function hashToAddress(input:Trytes[]) {
-  const kerl = new Kerl()
-  kerl.initialize()
+export function hashToAddress(input: Trytes[]) {
+  const kerl = new Kerl();
+  kerl.initialize();
   input.forEach(element => {
-    const padded_trits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(element))
-    kerl.absorb(padded_trits, 0, padded_trits.length)
-  })
-  const buffer = new Int8Array(Kerl.HASH_LENGTH)
-  kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH)
-  return trytes(buffer)
+    const padded_trits = padTritsMultipleOf(Kerl.HASH_LENGTH, Kerl.HASH_LENGTH, trits(element));
+    kerl.absorb(padded_trits, 0, padded_trits.length);
+  });
+  const buffer = new Int8Array(Kerl.HASH_LENGTH);
+  kerl.squeeze(buffer, 0, Kerl.HASH_LENGTH);
+  return trytes(buffer);
 }
 
 /**
@@ -49,7 +49,7 @@ export function hashToAddress(input:Trytes[]) {
  */
 export function getClaimAddress(id: MethodSpecId, type: string) {
   const typeTrytes = asciiToTrytes(type);
-  return hashToAddress([id, typeTrytes])
+  return hashToAddress([id, typeTrytes]);
 }
 
 /**
@@ -58,7 +58,7 @@ export function getClaimAddress(id: MethodSpecId, type: string) {
  * @param {string} type - claim specific type. Example: 'eClass:manufacturer'
  */
 export function getAttestationAddress(id: MethodSpecId, bundleHash: Hash) {
-  return hashToAddress([id, bundleHash])
+  return hashToAddress([id, bundleHash]);
 }
 
 /**
@@ -69,19 +69,18 @@ export function getAttestationAddress(id: MethodSpecId, bundleHash: Hash) {
  * @param {string} provider - Url of the the provider node
  */
 export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidDocument | undefined> {
- 
   init(provider);
 
-  const result = await fetchSingle(id, 'public')
+  const result = await fetchSingle(id, 'public');
 
   if (result instanceof Error || result.payload === undefined) {
     if (result instanceof Error) {
-      throw result
+      throw result;
     } else {
-      return undefined
+      return undefined;
     }
   } else {
-    return JSON.parse(trytesToAscii(result.payload))
+    return JSON.parse(trytesToAscii(result.payload));
   }
 }
 
@@ -96,7 +95,7 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
   return []
 }
 
-export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: Hash, provider:string) {
+export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: Hash, provider: string) {
   const iota = composeAPI({
     provider: provider
   })
@@ -175,32 +174,32 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
 
 
 export async function publishDid(mamChannel: MamState, did: DidDocument, 
-    {mwm = DEFAULT_MWM, tag = DEFAULT_TAG}: {mwm?: number, tag?: Tag} = {mwm: DEFAULT_MWM, tag: DEFAULT_TAG}) {
-  const message = create(mamChannel, asciiToTrytes(JSON.stringify(did)))
-  const response = await attach(message.payload, message.address, undefined, mwm, tag)
-  return response
+    { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
+  const message = create(mamChannel, asciiToTrytes(JSON.stringify(did)));
+  const response = await attach(message.payload, message.address, undefined, mwm, tag);
+  return response;
 }
 
-export async function publishClaim(signedClaim:{claim: Claim, signature: string}, provider: string) {
+export async function publishClaim(signedClaim: { claim: Claim, signature: string }, provider: string, 
+    { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
   const iota = composeAPI({
-    provider: provider
-  })
-  const address = getClaimAddress(signedClaim.claim.target, signedClaim.claim.type)
-  const message = asciiToTrytes(JSON.stringify(signedClaim))
-  const transfers = [
-    {
-        value: 0,
-        address: address,
-        message: message
-    }
-    ]
-    const trytes = await iota.prepareTransfers('9'.repeat(81), transfers) 
-    const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
-    return bundle
+    provider
+  });
+  const address = getClaimAddress(signedClaim.claim.target, signedClaim.claim.type);
+  const message = asciiToTrytes(JSON.stringify(signedClaim));
+  const transfers = [{
+    value: 0,
+    address,
+    message,
+    tag
+  }];
+  const trytes = await iota.prepareTransfers('9'.repeat(81), transfers);
+  const bundle = await iota.sendTrytes(trytes, 3, mwm);
+  return bundle;
 }
 
 export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, address: Hash, provider: string, 
-    {mwm = DEFAULT_MWM, tag = DEFAULT_TAG}: {mwm?: number, tag?: Tag} = {mwm: DEFAULT_MWM, tag: DEFAULT_TAG}) {
+    { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
   const iota = composeAPI({
     provider
   });
@@ -216,21 +215,20 @@ export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, add
   return bundle;
 }
 
-export async function publishAttestation(issuer: MethodSpecId, bundleHash:Hash, signature:string, provider:string) {
+export async function publishAttestation(issuer: MethodSpecId, bundleHash: Hash, signature: string, provider: string, 
+    { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
   const iota = composeAPI({
     provider: provider
-  })
-  const address = getAttestationAddress(issuer, bundleHash)
-  const message = asciiToTrytes(JSON.stringify(signature))
-  const transfers = [
-    {
-        value: 0,
-        address: address,
-        message: message
-    }
-    ]
-    const trytes = await iota.prepareTransfers('9'.repeat(81), transfers) 
-    const bundle = await iota.sendTrytes(trytes, 3, DEFAULT_MWM)
-    return bundle
-
+  });
+  const address = getAttestationAddress(issuer, bundleHash);
+  const message = asciiToTrytes(JSON.stringify(signature));
+  const transfers = [{
+    value: 0,
+    address,
+    message,
+    tag
+  }];
+  const trytes = await iota.prepareTransfers('9'.repeat(81), transfers);
+  const bundle = await iota.sendTrytes(trytes, 3, mwm);
+  return bundle;
 }

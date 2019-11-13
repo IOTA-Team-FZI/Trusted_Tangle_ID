@@ -112,27 +112,35 @@ export default class DID {
 
   createClaim(target: MethodSpecId, type: string, content = {}) {
     if ( !target ) {
-      throw new Error('Claim parameters not complete. Specify target.')
+      throw new Error('Claim parameters not complete. Specify target.');
     }
     if ( !type ) {
-      throw new Error('Claim parameters not complete. Specify type.')
+      throw new Error('Claim parameters not complete. Specify type.');
     }
     if (JSON.stringify(content).length > CLAIM_CONTENT_LIMIT) {
-      throw new Error('Claim content exceeds the limit of '+ CLAIM_CONTENT_LIMIT + ' characters')
+      throw new Error('Claim content exceeds the limit of '+ CLAIM_CONTENT_LIMIT + ' characters');
     }
     // build claim to publish
-    let newClaim: Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    let newClaim: Claim = {
+      type,
+      content,
+      target,
+      issuer: this.getMethodSpecificIdentifier()
+    };
     // find predecessor
-    const predecessors = [] // await fetchClaim(target, type)
+    const predecessors = []; // await fetchClaim(target, type)
     if ( predecessors.length > 0 ) {
       // TODO get latest claim and add to claim
     }
-    let buffer = Buffer.from(JSON.stringify(newClaim)).toString('hex')
-    const signature = this.keyPair.sign(buffer).toDER('hex')
-    return {claim: newClaim, signature: signature}
+    let buffer = Buffer.from(JSON.stringify(newClaim)).toString('hex');
+    const signature = this.keyPair.sign(buffer).toDER('hex');
+    return {
+      claim: newClaim,
+      signature 
+    };
   }
 
-  static async publishClaim(signedClaim:{claim: Claim, signature: any}, provider=DEFAULT_PROVIDER) {
+  static async publishClaim(signedClaim: { claim: Claim, signature: any }, provider = DEFAULT_PROVIDER) {
     return publishClaim(signedClaim, provider)
   }
 

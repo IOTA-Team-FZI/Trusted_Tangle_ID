@@ -1,16 +1,14 @@
 import DID from '../src/did';
 import {generate} from 'randomstring';
-import { composeAPI } from '@iota/core';
-import { trytesToAscii } from '@iota/converter';
 
 const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
 const did = DID.fromSeed(seed);
 
-const result = did.publishDid()
-result.then((value) => {
-  console.log('DID published')
-  console.log(value)
+did.publishDid()
+  .then((value) => {
+    console.log('DID published')
+    console.log(value)
 });
 
 const claimContent = { name: 'FZI Karlsruhe' }
@@ -22,7 +20,7 @@ DID.publishClaim(claim).then((value) => {
 
   setTimeout(() => {
     DID.fetchClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer')
-      .then((result: any) => console.log(result))
-      .catch((err: any) => console.error(err))
+      .then((result) => console.log(result))
+      .catch((err) => console.error(err))
   }, 2000);
-}).catch((err: any) => console.error(err));
+}).catch((err) => console.error(err));
