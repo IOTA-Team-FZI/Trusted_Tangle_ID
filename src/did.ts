@@ -3,7 +3,7 @@ import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds, publ
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
-import elliptic, { ec } from 'elliptic';
+import elliptic from 'elliptic';
 import { createHash } from 'crypto';
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
@@ -98,11 +98,11 @@ export default class DID {
     }
   }
 
-  static async fetchDid(did: MethodSpecId, provider=DEFAULT_PROVIDER) {
+  static async fetchDid(did: MethodSpecId, provider = DEFAULT_PROVIDER) {
     return fetchDid(did, provider);
   }
 
-  createClaim(target: MethodSpecId, type: string, content={}) {
+  createClaim(target: MethodSpecId, type: string, content = {}) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.')
     }
@@ -113,9 +113,9 @@ export default class DID {
       throw new Error('Claim content exceeds the limit of '+ CLAIM_CONTENT_LIMIT + ' characters')
     }
     // build claim to publish
-    let newClaim:Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
+    let newClaim: Claim = { type: type, content: content, target: target, issuer: this.getMethodSpecificIdentifier() }
     // find predecessor
-    const predecessors = []// await fetchClaim(target, type)
+    const predecessors = [] // await fetchClaim(target, type)
     if ( predecessors.length > 0 ) {
       // TODO get latest claim and add to claim
     }
@@ -128,20 +128,20 @@ export default class DID {
     return publishClaim(signedClaim, provider)
   }
 
-  async publishAttestation(claimBundleHash: Hash, provider=DEFAULT_PROVIDER) {
+  async publishAttestation(claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
     const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex')
     return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, signature, provider)
   }
 
-  static async fetchClaim(id:MethodSpecId, type:string, provider=DEFAULT_PROVIDER) {
+  static async fetchClaim(id:MethodSpecId, type:string, provider = DEFAULT_PROVIDER) {
     return fetchClaim(id, type, provider)
   }
 
-  static async fetchAttestation(issuer: MethodSpecId, claimBundleHash: Hash, provider=DEFAULT_PROVIDER) {
+  static async fetchAttestation(issuer: MethodSpecId, claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
     return fetchAttestation(issuer, claimBundleHash, provider)
   }
 
-  static async verifyClaim(targetId:MethodSpecId, type:string, verifierId?: MethodSpecId, verifierKey?: string, provider=DEFAULT_PROVIDER) {
+  static async verifyClaim(targetId:MethodSpecId, type:string, verifierId?: MethodSpecId, verifierKey?: string, provider = DEFAULT_PROVIDER) {
     if (verifierId === undefined && verifierKey === undefined) {
       throw new Error('No verifier or key specified')
     }
@@ -158,6 +158,4 @@ export default class DID {
     }
     return false
   }
-
-
 }

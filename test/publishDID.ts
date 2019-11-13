@@ -1,13 +1,11 @@
-import DID from "../src/did";
-import {generate} from 'randomstring';
+import DID from '../src/did';
+import { generate } from 'randomstring';
 
-var SEED = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
+const seed = generate({ length: 81, charset: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9' });
 
-var did = DID.fromSeed(SEED);
+const did = DID.fromSeed(seed);
 
 console.log(did)
 
-var result = did.publishDid()
-result.then(function (value) {
-    console.log(value)
-});
+const result = did.publishDid()
+result.then((value) => console.log(value));

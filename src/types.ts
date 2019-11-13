@@ -1,4 +1,4 @@
-import { Trytes, Hash } from "@iota/core/typings/types";
+import { Trytes, Hash } from '@iota/core/typings/types';
 
 export type MethodSpecId = Trytes;
 
