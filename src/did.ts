@@ -29,12 +29,12 @@ export default class DID {
       '@context': 'https://www.w3.org/2019/did/v1',
       id: `did:${METHOD_NAME}:${root}`,
       publicKey: keyPair.getPublic('hex')
-    }
-    return new DID(document, seed, keyPair, channel)
+    };
+    return new DID(document, seed, keyPair, channel);
   }
 
   getMethodSpecificIdentifier() {
-    return this.document.id.split(':')[2]
+    return this.document.id.split(':')[2];
   }
 
   async sync() {
@@ -44,7 +44,7 @@ export default class DID {
         ...this.mamChannel.channel,
         start: 0,
       }
-    }
+    };
     const result = await Mam.fetch(Mam.getRoot(fromStart), 'public');
     if (result instanceof Error) {
       throw result;
@@ -92,9 +92,9 @@ export default class DID {
 
   public async publishDid() {
     if (!this.published) {
-      const result = publishDid(this.mamChannel, this.document)
-      this.published = true
-      return result
+      const result = publishDid(this.mamChannel, this.document);
+      this.published = true;
+      return result;
     }
   }
 
@@ -141,37 +141,37 @@ export default class DID {
   }
 
   static async publishClaim(signedClaim: { claim: Claim, signature: any }, provider = DEFAULT_PROVIDER) {
-    return publishClaim(signedClaim, provider)
+    return publishClaim(signedClaim, provider);
   }
 
   async publishAttestation(claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
-    const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex')
-    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, signature, provider)
+    const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex');
+    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, signature, provider);
   }
 
-  static async fetchClaim(id:MethodSpecId, type:string, provider = DEFAULT_PROVIDER) {
-    return fetchClaim(id, type, provider)
+  static async fetchClaim(id: MethodSpecId, type: string, provider = DEFAULT_PROVIDER) {
+    return fetchClaim(id, type, provider);
   }
 
   static async fetchAttestation(issuer: MethodSpecId, claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
-    return fetchAttestation(issuer, claimBundleHash, provider)
+    return fetchAttestation(issuer, claimBundleHash, provider);
   }
 
-  static async verifyClaim(targetId:MethodSpecId, type:string, verifierId?: MethodSpecId, verifierKey?: string, provider = DEFAULT_PROVIDER) {
+  static async verifyClaim(targetId: MethodSpecId, type: string, verifierId?: MethodSpecId, verifierKey?: string, provider = DEFAULT_PROVIDER) {
     if (verifierId === undefined && verifierKey === undefined) {
-      throw new Error('No verifier or key specified')
+      throw new Error('No verifier or key specified');
     }
-    const claim = await fetchClaim(targetId, type, provider)
+    const claim = await fetchClaim(targetId, type, provider);
     // TODO handle multiple claims
     if (verifierKey) {
-      return true // TODO
+      return true; // TODO
     } 
     if (verifierId) {
-      const verifier = await fetchDid(verifierId, provider)
+      const verifier = await fetchDid(verifierId, provider);
       if (verifier) {
-        return true // TODO
+        return true; // TODO
       }
     }
-    return false
+    return false;
   }
 }

@@ -127,26 +127,25 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
 export async function fetchClaim(target: MethodSpecId, type: string, provider: string) {
   const iota = composeAPI({
     provider: provider
-  })
-  const address = getClaimAddress(target, type)
-  const claimTransactions = await iota.findTransactionObjects({addresses: [address]})
-  let claims:any = {}
-  claimTransactions.forEach((transaction:Transaction) => {
-    claims[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment))
   });
+  const address = getClaimAddress(target, type);
+  const claimTransactions = await iota.findTransactionObjects({addresses: [address]});
+  let claims: any = {};
+  claimTransactions
+    .forEach((transaction: Transaction) => claims[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment)));
 
   // check if every issuer has really signed the claim
   Object.keys(claims).forEach(async hash => {
-    const issuer = await fetchDid(claims[hash].claim.issuer, provider)
-    const signature = claims[hash].signature
-    if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
-      console.log('Deleting ', claims[hash])
-      delete claims[hash]
+    const issuer = await fetchDid(claims[hash].claim.issuer, provider);
+    const signature = claims[hash].signature;
+    if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))) {
+      console.log('Deleting ', claims[hash]);
+      delete claims[hash];
     }
-  })
+  });
 
   if (Object.keys(claims).length > 1) {
-    throw new Error('More than one claim. Multi fetch not implemented yet.')
+    throw new Error('More than one claim. Multi fetch not implemented yet.');
   }
   // if there is just one claim
   /*if (Object.keys(claims).length === 1) {
@@ -169,7 +168,7 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
   }*/
 
 
-  return claims // latest claims
+  return claims; // latest claims
 }
 
 
