@@ -103,7 +103,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   const attestationTransactions = await iota.findTransactionObjects({addresses: [address]})
   let attestations:any = []
   attestationTransactions.forEach((transaction:Transaction) => {
-    attestations.push(trytesToString(JSON.parse(trytesToString(transaction.signatureMessageFragment))))
+    attestations.push(trytesToString(transaction.signatureMessageFragment))
   })
   // check if every issuer has really signed the attestation
   const issuer = await fetchDid(issuerId, provider)
@@ -115,7 +115,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   if (attestations.length > 1) {
     throw new Error('More than one attestation. Attestation revokation not implemented yet.')
   }
-  return attestations
+  return attestations.length === 1
 }
 
 /**
@@ -220,7 +220,7 @@ export async function publishAttestation(issuer: MethodSpecId, bundleHash: Hash,
     provider: provider
   });
   const address = getAttestationAddress(issuer, bundleHash);
-  const message = asciiToTrytes(JSON.stringify(signature));
+  const message = asciiToTrytes(signature);
   const transfers = [{
     value: 0,
     address,
