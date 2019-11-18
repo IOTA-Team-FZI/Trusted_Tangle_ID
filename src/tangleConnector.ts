@@ -117,8 +117,26 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
     return undefined
   }
   if (Object.keys(attestations).length > 1) {
-    // TODO
-    throw new Error('More than one attestation. Attestation revokation not implemented yet.')
+    let latestAttestation:Hash = ''
+    // determine the first attestation
+    Object.keys(attestations).forEach(hash => {
+      if(attestations[hash].attestation.predecessor === undefined) {
+        latestAttestation = hash
+      }
+    })
+    // iterate attestations till the truely latest is found
+    let updated = true
+
+    while (updated) {
+      updated = false
+      Object.keys(attestations).forEach(hash => {
+          if (attestations[hash].attestation.predecessor === latestAttestation) {
+            latestAttestation = hash
+            updated = true
+          }
+        });
+    }
+    return {latestAttestation: attestations[latestAttestation]}
   }
   return attestations
 }
@@ -159,16 +177,16 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
     }
   });
 
-  let changed = true
+  let updated = true
 
-  while (changed) {
-    changed = false
+  while (updated) {
+    updated = false
     Object.keys(claims).forEach(hash => {
         // TODO check for same signature
         if (claims[hash].claim.predecessor in latestClaims) {
           latestClaims[hash] = claims[hash]
           delete latestClaims[claims[hash].claim.predecessor]
-          changed = true
+          updated = true
         }
       });
   }
