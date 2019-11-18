@@ -144,11 +144,11 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
     }
   });
 
-  if (Object.keys(claims).length > 1) {
+  /*if (Object.keys(claims).length > 1) {
     throw new Error('More than one claim. Multi fetch not implemented yet.');
-  }
+  }*/
   // if there is just one claim
-  /*if (Object.keys(claims).length === 1) {
+  if (Object.keys(claims).length === 1) {
     return claims
   }
   let latestClaims:any = {}
@@ -158,17 +158,22 @@ export async function fetchClaim(target: MethodSpecId, type: string, provider: s
     }
   });
 
-  let checkedFollowUpClaims = latestClaims.length
+  let changed = true
 
-  while (checkedFollowUpClaims < claims.length) {
-    Object.keys(claims).forEach((element:any) => {
-        // TODO check signature the same ? 
-        checkedFollowUpClaims++
+  while (changed) {
+    changed = false
+    Object.keys(claims).forEach(hash => {
+        // TODO check for same signature
+        if (claims[hash].claim.predecessor in latestClaims) {
+          latestClaims[hash] = claims[hash]
+          delete latestClaims[claims[hash].claim.predecessor]
+          changed = true
+        }
       });
-  }*/
+  }
 
 
-  return claims; // latest claims
+  return latestClaims;
 }
 
 

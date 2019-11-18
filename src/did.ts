@@ -110,7 +110,7 @@ export default class DID {
     }
   }
 
-  createClaim(target: MethodSpecId, type: string, content = {}) {
+  async createClaim(target: MethodSpecId, type: string, content = {}, provider = DEFAULT_PROVIDER, predecessor?: MethodSpecId) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.');
     }
@@ -127,10 +127,15 @@ export default class DID {
       target,
       issuer: this.getMethodSpecificIdentifier()
     };
-    // find predecessor
-    const predecessors = []; // await fetchClaim(target, type)
-    if ( predecessors.length > 0 ) {
-      // TODO get latest claim and add to claim
+    // find predecessor claims published by did (should be extended to unknown id later)
+    if ( predecessor === undefined ) {
+      let claims = await fetchClaim(target, type, provider)
+      Object.keys(claims).forEach(hash => {
+        // signature already checked by tangle connector
+        if (claims[hash].claim.issuer === this.getMethodSpecificIdentifier()) {
+          newClaim.predecessor = hash
+        }
+      })
     }
     let buffer = Buffer.from(JSON.stringify(newClaim)).toString('hex');
     const signature = this.keyPair.sign(buffer).toDER('hex');

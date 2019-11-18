@@ -13,7 +13,7 @@ did.publishDid()
 
 const claimContent = { name: 'FZI Karlsruhe' }
 
-const claim = did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer', claimContent)
+did.createClaim(did.getMethodSpecificIdentifier(), 'eClass:manufacturer', claimContent).then( (claim) => {
 // console.log(claim)
 DID.publishClaim(claim).then((value) => {
   console.log(value)
@@ -24,3 +24,4 @@ DID.publishClaim(claim).then((value) => {
       .catch((err) => console.error(err))
   }, 2000);
 }).catch((err) => console.error(err));
+})
