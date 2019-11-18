@@ -129,7 +129,7 @@ export default class DID {
     };
     // find predecessor claims published by did (should be extended to unknown id later)
     if ( predecessor === undefined ) {
-      let claims = await fetchClaim(target, type, provider)
+      let claims = await fetchClaims(target, type, provider)
       Object.keys(claims).forEach(hash => {
         // signature already checked by tangle connector
         if (claims[hash].claim.issuer === this.getMethodSpecificIdentifier()) {
@@ -155,7 +155,7 @@ export default class DID {
   }
 
   static async fetchClaim(id: MethodSpecId, type: string, provider = DEFAULT_PROVIDER) {
-    return fetchClaim(id, type, provider);
+    return fetchClaims(id, type, provider);
   }
 
   static async fetchAttestation(issuer: MethodSpecId, claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
