@@ -111,6 +111,24 @@ export default class DID {
     }
   }
 
+  async createAttestaion(claim: Hash, trust = 1.0, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
+    // build claim to publish
+    let newAttestation: any = {
+      claim,
+      trust
+    };
+    // find predecessor claims published by did (should be extended to unknown id later)
+    if ( predecessor === undefined ) {
+      newAttestation.predecessor = Object.keys(await fetchAttestation(claim, this.getMethodSpecificIdentifier(), provider))[0]
+    }
+    let buffer = Buffer.from(JSON.stringify(newAttestation)).toString('hex');
+    const signature = this.keyPair.sign(buffer).toDER('hex');
+    return {
+      claim: newAttestation,
+      signature 
+    };
+  }
+
   async createClaim(target: MethodSpecId, type: string, content = {}, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.');
