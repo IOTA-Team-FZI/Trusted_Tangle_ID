@@ -13,11 +13,14 @@ did.publishDid()
     console.log(value)
 });
 
-did.publishAttestation(claimBundleHash).then((value) => {
+did.createAttestation(claimBundleHash).then(attestation => {
+
+DID.publishAttestation(did.getMethodSpecificIdentifier(), attestation).then((value) => {
     console.log(value)
     setTimeout(() => {
         DID.fetchAttestation(did.getMethodSpecificIdentifier(), claimBundleHash)
         .then((result) => console.log(result))
         .catch((err) => console.error(err))
       }, 2000)
-})
+}).catch((err) => console.error(err))
+}).catch((err) => console.error(err))

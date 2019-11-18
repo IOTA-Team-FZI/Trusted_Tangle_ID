@@ -1,6 +1,6 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
 import { publishDid, fetchDid, publishClaim, fetchClaims, publishTrustedIds, publishAttestation, fetchAttestation } from './tangleConnector';
-import { DidDocument, MethodSpecId, Claim } from './types';
+import { DidDocument, MethodSpecId, Claim, Attestation } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
@@ -111,20 +111,23 @@ export default class DID {
     }
   }
 
-  async createAttestaion(claim: Hash, trust = 1.0, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
+  async createAttestation(claim: Hash, trust = 1.0, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
     // build claim to publish
-    let newAttestation: any = {
+    let newAttestation: Attestation = {
       claim,
       trust
     };
     // find predecessor claims published by did (should be extended to unknown id later)
     if ( predecessor === undefined ) {
-      newAttestation.predecessor = Object.keys(await fetchAttestation(claim, this.getMethodSpecificIdentifier(), provider))[0]
+      const latestAttestation = await fetchAttestation(claim, this.getMethodSpecificIdentifier(), provider)
+      if (latestAttestation){
+        newAttestation.predecessor = Object.keys(latestAttestation)[0]
+      }
     }
     let buffer = Buffer.from(JSON.stringify(newAttestation)).toString('hex');
     const signature = this.keyPair.sign(buffer).toDER('hex');
     return {
-      claim: newAttestation,
+      attestation: newAttestation,
       signature 
     };
   }
@@ -164,13 +167,12 @@ export default class DID {
     };
   }
 
-  static async publishClaim(signedClaim: { claim: Claim, signature: any }, provider = DEFAULT_PROVIDER) {
+  static async publishClaim(signedClaim: { claim: Claim, signature: string }, provider = DEFAULT_PROVIDER) {
     return publishClaim(signedClaim, provider);
   }
 
-  async publishAttestation(claimBundleHash: Hash, trustLevel = 1.0, provider = DEFAULT_PROVIDER) {
-    const signature = this.keyPair.sign(Buffer.from(claimBundleHash+trustLevel)).toDER('hex');
-    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, trustLevel, signature, provider);
+  static async publishAttestation(issuer: MethodSpecId, signedAttestation: { attestation: Attestation, signature: string }, provider = DEFAULT_PROVIDER) {
+    return publishAttestation(issuer, signedAttestation, provider);
   }
 
   static async fetchClaim(id: MethodSpecId, type: string, provider = DEFAULT_PROVIDER) {

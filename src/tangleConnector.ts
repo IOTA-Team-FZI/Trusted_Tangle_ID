@@ -2,7 +2,7 @@ import Kerl from '@iota/kerl'
 import { composeAPI } from '@iota/core'
 import { padTrits } from '@iota/pad'
 import { Trytes, Tag, Hash, Transaction } from '@iota/core/typings/types';
-import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
+import { DidDocument, MethodSpecId, Claim, TrustedIdMessage, Attestation } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
 import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter';
 import elliptic from 'elliptic';
@@ -71,7 +71,7 @@ export function getAttestationAddress(id: MethodSpecId, bundleHash: Hash) {
  */
 export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidDocument | undefined> {
   init(provider);
-
+  // TODO only fallback to tangle if cache empty
   const result = await fetchSingle(id, 'public');
 
   if (result instanceof Error || result.payload === undefined) {
@@ -106,10 +106,10 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   attestationTransactions.forEach((transaction:Transaction) => {
     attestations[transaction.bundle] = (JSON.parse(trytesToString(transaction.signatureMessageFragment)))
   })
-  // check if every issuer has really signed the attestation
+  // check if the issuer has really signed the attestation
   const issuer = await fetchDid(issuerId, provider)
-  Object.keys(attestations).forEach((hash:any) => {
-    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash+attestations[hash].trust), attestations[hash].signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
+  Object.keys(attestations).forEach((hash:Hash) => {
+    if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(attestations[hash].attestation)), attestations[hash].signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
       delete attestations[hash]
     }
   })
@@ -117,6 +117,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
     return undefined
   }
   if (Object.keys(attestations).length > 1) {
+    // TODO
     throw new Error('More than one attestation. Attestation revokation not implemented yet.')
   }
   return attestations
@@ -139,13 +140,13 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
     .forEach((transaction: Transaction) => claims[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment)));
 
   // check if every issuer has really signed the claim
-  Object.keys(claims).forEach(async hash => {
+  for (const hash of Object.keys(claims)) {
     const issuer = await fetchDid(claims[hash].claim.issuer, provider);
     const signature = claims[hash].signature;
     if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))) {
       delete claims[hash];
     }
-  });
+  }
 
   // if there is just one claim
   if (Object.keys(claims).length === 1) {
@@ -219,13 +220,13 @@ export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, add
   return bundle;
 }
 
-export async function publishAttestation(issuer: MethodSpecId, bundleHash: Hash, trust: number, signature: string, provider: string, 
+export async function publishAttestation(issuer: MethodSpecId, signedAttestation: { attestation: Attestation, signature: string }, provider: string, 
     { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
   const iota = composeAPI({
     provider: provider
   });
-  const address = getAttestationAddress(issuer, bundleHash);
-  const message = asciiToTrytes(JSON.stringify({trust, signature}));
+  const address = getAttestationAddress(issuer, signedAttestation.attestation.claim);
+  const message = asciiToTrytes(JSON.stringify(signedAttestation));
   const transfers = [{
     value: 0,
     address,

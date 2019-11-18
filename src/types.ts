@@ -16,6 +16,12 @@ export type Claim = {
   predecessor?: Hash;
 };
 
+export type Attestation = {
+  claim: Hash;
+  trust: number;
+  predecessor?: Hash;
+};
+
 export type TrustedIdMessage = {
   entries: {
     [x: string]: number;
