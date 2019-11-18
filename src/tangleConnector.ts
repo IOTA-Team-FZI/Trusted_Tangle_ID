@@ -124,7 +124,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
  * @param {string} claimIdentifier - The claim identifier composed of 'standard':'type'
  * @param {string} provider - Url of the the provider node
  */
-export async function fetchClaim(target: MethodSpecId, type: string, provider: string) {
+export async function fetchClaims(target: MethodSpecId, type: string, provider: string) {
   const iota = composeAPI({
     provider: provider
   });

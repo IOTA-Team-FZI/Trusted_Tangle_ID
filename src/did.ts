@@ -1,5 +1,5 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim, fetchClaim, publishTrustedIds, publishAttestation, fetchAttestation } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaims, publishTrustedIds, publishAttestation, fetchAttestation } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim } from './types';
 import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
@@ -162,11 +162,20 @@ export default class DID {
     return fetchAttestation(issuer, claimBundleHash, provider);
   }
 
+  /**
+   * Checks if a claim is verified by a given id (or the public Key of the id)
+   * 
+   * @param targetId 
+   * @param type 
+   * @param verifierId 
+   * @param verifierKey 
+   * @param provider 
+   */
   static async verifyClaim(targetId: MethodSpecId, type: string, verifierId?: MethodSpecId, verifierKey?: string, provider = DEFAULT_PROVIDER) {
     if (verifierId === undefined && verifierKey === undefined) {
       throw new Error('No verifier or key specified');
     }
-    const claims = await fetchClaim(targetId, type, provider);
+    const claims = await fetchClaims(targetId, type, provider);
 
     if (verifierKey) {
       return true; // TODO
