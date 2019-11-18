@@ -110,7 +110,7 @@ export default class DID {
     }
   }
 
-  async createClaim(target: MethodSpecId, type: string, content = {}, provider = DEFAULT_PROVIDER, predecessor?: MethodSpecId) {
+  async createClaim(target: MethodSpecId, type: string, content = {}, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
     if ( !target ) {
       throw new Error('Claim parameters not complete. Specify target.');
     }
