@@ -5,6 +5,7 @@ import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
+import './errors'
 
 export const DEFAULT_PROVIDER = 'https://nodes.devnet.thetangle.org:443';
 export const METHOD_NAME = 'trusttangle';
@@ -163,29 +164,18 @@ export default class DID {
   }
 
   /**
-   * Checks if a claim is verified by a given id (or the public Key of the id)
+   * Checks if a claim is verified by a given id
    * 
    * @param targetId 
    * @param type 
    * @param verifierId 
-   * @param verifierKey 
    * @param provider 
    */
-  static async verifyClaim(targetId: MethodSpecId, type: string, verifierId?: MethodSpecId, verifierKey?: string, provider = DEFAULT_PROVIDER) {
-    if (verifierId === undefined && verifierKey === undefined) {
-      throw new Error('No verifier or key specified');
-    }
+  static async verifyClaim(targetId: MethodSpecId, type: string, verifierId: MethodSpecId, provider = DEFAULT_PROVIDER) {
     const claims = await fetchClaims(targetId, type, provider);
-
-    if (verifierKey) {
-      return true; // TODO
-    } 
-    if (verifierId) {
-      const verifier = await fetchDid(verifierId, provider);
-      if (verifier) {
-        return true; // TODO
-      }
+    for (const hash of Object.keys(claims)) {
+      claims[hash].trust = await fetchAttestation(verifierId, hash, provider)
     }
-    return false;
+    return claims
   }
 }

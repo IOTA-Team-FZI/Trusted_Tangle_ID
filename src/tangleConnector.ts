@@ -6,6 +6,7 @@ import { DidDocument, MethodSpecId, Claim, TrustedIdMessage } from './types';
 import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
 import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter';
 import elliptic from 'elliptic';
+import './errors'
 
 export const DEFAULT_MWM = 9;
 export const DEFAULT_TAG = 'TRUSTED9DID';
@@ -112,6 +113,9 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
       attestations.splice(attestations.indexOf(attestation), 1)
     }
   })
+  if (attestations.length === 0) {
+    return undefined
+  }
   if (attestations.length > 1) {
     throw new Error('More than one attestation. Attestation revokation not implemented yet.')
   }
