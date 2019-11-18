@@ -102,24 +102,24 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   })
   const address = getAttestationAddress(issuerId, claimBundleHash)
   const attestationTransactions = await iota.findTransactionObjects({addresses: [address]})
-  let attestations:any = []
+  let attestations:any = {}
   attestationTransactions.forEach((transaction:Transaction) => {
-    attestations.push(JSON.parse(trytesToString(transaction.signatureMessageFragment)))
+    attestations[transaction.bundle] = (JSON.parse(trytesToString(transaction.signatureMessageFragment)))
   })
   // check if every issuer has really signed the attestation
   const issuer = await fetchDid(issuerId, provider)
-  attestations.forEach(async (attestation:any) => {
-    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash+attestation.trust), attestation.signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
-      attestations.splice(attestations.indexOf(attestation), 1)
+  Object.keys(attestations).forEach((hash:any) => {
+    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash+attestations[hash].trust), attestations[hash].signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
+      delete attestations[hash]
     }
   })
-  if (attestations.length === 0) {
+  if (Object.keys(attestations).length === 0) {
     return undefined
   }
-  if (attestations.length > 1) {
+  if (Object.keys(attestations).length > 1) {
     throw new Error('More than one attestation. Attestation revokation not implemented yet.')
   }
-  return attestations[0].trust
+  return attestations
 }
 
 /**
@@ -219,13 +219,13 @@ export async function publishTrustedIds(trustedIdsMessage: TrustedIdMessage, add
   return bundle;
 }
 
-export async function publishAttestation(issuer: MethodSpecId, bundleHash: Hash, trustLevel: number, signature: string, provider: string, 
+export async function publishAttestation(issuer: MethodSpecId, bundleHash: Hash, trust: number, signature: string, provider: string, 
     { mwm = DEFAULT_MWM, tag = DEFAULT_TAG }: { mwm?: number, tag?: Tag } = { mwm: DEFAULT_MWM, tag: DEFAULT_TAG }) {
   const iota = composeAPI({
     provider: provider
   });
   const address = getAttestationAddress(issuer, bundleHash);
-  const message = asciiToTrytes(JSON.stringify({trust: trustLevel, signature: signature}));
+  const message = asciiToTrytes(JSON.stringify({trust, signature}));
   const transfers = [{
     value: 0,
     address,
