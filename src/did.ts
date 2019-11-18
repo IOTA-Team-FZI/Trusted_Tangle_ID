@@ -151,7 +151,7 @@ export default class DID {
   }
 
   async publishAttestation(claimBundleHash: Hash, trustLevel = 1.0, provider = DEFAULT_PROVIDER) {
-    const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex');
+    const signature = this.keyPair.sign(Buffer.from(claimBundleHash+trustLevel)).toDER('hex');
     return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, trustLevel, signature, provider);
   }
 
@@ -166,7 +166,7 @@ export default class DID {
   /**
    * Checks if a claim is verified by a given id
    * 
-   * @param targetId 
+   * @param targetId
    * @param type 
    * @param verifierId 
    * @param provider 

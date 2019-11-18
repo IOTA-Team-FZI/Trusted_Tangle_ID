@@ -109,7 +109,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   // check if every issuer has really signed the attestation
   const issuer = await fetchDid(issuerId, provider)
   attestations.forEach(async (attestation:any) => {
-    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash), attestation.signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
+    if (issuer === undefined || !ec.verify(Buffer.from(claimBundleHash+attestation.trust), attestation.signature, ec.keyFromPublic(issuer.publicKey, 'hex'))){
       attestations.splice(attestations.indexOf(attestation), 1)
     }
   })
