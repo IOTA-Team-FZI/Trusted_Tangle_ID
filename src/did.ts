@@ -149,9 +149,9 @@ export default class DID {
     return publishClaim(signedClaim, provider);
   }
 
-  async publishAttestation(claimBundleHash: Hash, provider = DEFAULT_PROVIDER) {
+  async publishAttestation(claimBundleHash: Hash, trustLevel = 1.0, provider = DEFAULT_PROVIDER) {
     const signature = this.keyPair.sign(Buffer.from(claimBundleHash)).toDER('hex');
-    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, signature, provider);
+    return publishAttestation(this.getMethodSpecificIdentifier(), claimBundleHash, trustLevel, signature, provider);
   }
 
   static async fetchClaim(id: MethodSpecId, type: string, provider = DEFAULT_PROVIDER) {
@@ -166,8 +166,8 @@ export default class DID {
     if (verifierId === undefined && verifierKey === undefined) {
       throw new Error('No verifier or key specified');
     }
-    const claim = await fetchClaim(targetId, type, provider);
-    // TODO handle multiple claims
+    const claims = await fetchClaim(targetId, type, provider);
+
     if (verifierKey) {
       return true; // TODO
     } 
