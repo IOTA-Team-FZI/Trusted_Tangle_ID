@@ -96,6 +96,12 @@ async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
   return []
 }
 
+/**
+ * 
+ * @param issuerId - the id of the attesting party
+ * @param claimBundleHash - the bundle hash of the refferenced claim
+ * @param provider - Url of the the provider node
+ */
 export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: Hash, provider: string) {
   const iota = composeAPI({
     provider: provider
@@ -136,7 +142,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
           }
         });
     }
-    return {latestAttestation: attestations[latestAttestation]}
+    return {[latestAttestation]: attestations[latestAttestation]}
   }
   return attestations
 }

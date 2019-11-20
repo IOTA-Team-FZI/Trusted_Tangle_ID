@@ -119,7 +119,7 @@ export default class DID {
     };
     // find predecessor claims published by did (should be extended to unknown id later)
     if ( predecessor === undefined ) {
-      const latestAttestation = await fetchAttestation(claim, this.getMethodSpecificIdentifier(), provider)
+      const latestAttestation = await fetchAttestation(this.getMethodSpecificIdentifier(), claim, provider)
       if (latestAttestation){
         newAttestation.predecessor = Object.keys(latestAttestation)[0]
       }
