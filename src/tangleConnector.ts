@@ -3,8 +3,8 @@ import { composeAPI } from '@iota/core'
 import { padTrits } from '@iota/pad'
 import { Trytes, Tag, Hash, Transaction } from '@iota/core/typings/types';
 import { DidDocument, MethodSpecId, Claim, TrustedIdMessage, Attestation } from './types';
-import { init, fetchSingle, MamState, create, attach } from '@iota/mam';
-import { asciiToTrytes, trytesToAscii, trytes, trits } from '@iota/converter';
+import { init, fetchSingle, MamState, create, attach, fetch } from '@iota/mam';
+import { asciiToTrytes, trytesToAscii, trytes, trits, value } from '@iota/converter';
 import elliptic from 'elliptic';
 import './errors'
 
@@ -90,10 +90,63 @@ export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidD
  * Fetches the list of trusted ids of the requested id from the tangle
  *
  * @param {Trytes} id - The id of which the trusted ids shall be fetched
+ * @param {string} provider
  */
-async function fetchTrustedIDs(id: MethodSpecId): Promise<Trytes[]> {
-  // TODO
-  return []
+export async function fetchTrustedIDs(id:MethodSpecId, provider:string) {
+  init(provider)
+  const didStream = await fetchSingle(id, 'public')
+  if (didStream instanceof Error) {
+    return didStream
+  }
+  if (didStream.payload === undefined) {
+    return new Error('Did undefined')
+  }
+  const did = JSON.parse(trytesToAscii(didStream.payload))
+  const iota = composeAPI({
+    provider: provider
+  })
+  const trustedIdUpdateTransactions = await iota.findTransactionObjects({addresses: [didStream.nextRoot]})
+  // transform all transactions into objects
+  let updates:any = {}
+  trustedIdUpdateTransactions.forEach((transaction:Transaction) => {
+    updates[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment))
+  })
+  if (Object.keys(updates).length === 0) {
+    return new Map<Trytes, number>()
+  }
+
+  // remove all wrongly signed updates
+  Object.keys(updates).forEach((hash:Hash) => {
+    if (!ec.verify(Buffer.from(JSON.stringify(updates[hash].payload)), updates[hash].signature, ec.keyFromPublic(did.publicKey, 'hex'))){
+      delete updates[hash]
+    }
+  })
+  let trustedIds = new Map<MethodSpecId, number>()
+  let firstUpdate:any = {}
+  Object.keys(updates).forEach(hash => {
+    if (updates[hash].payload.predecessor === undefined) {
+      firstUpdate[hash] = updates[hash]
+      Object.keys(updates[hash].payload.entries).forEach( (k:Hash) => trustedIds.set(k, updates[hash].payload.entries[k]))
+    }
+  })
+  if (Object.keys(firstUpdate).length > 1) {
+    throw new Error('More than one trusted id root')
+  }
+  
+  let updated = true
+  while (updated) {
+    updated = false
+    Object.keys(updates).forEach((hash:Hash) => {
+      if (updates[hash].payload.predecessor === Object.keys(firstUpdate)[0]) {
+        updated = true
+        const entries = updates[hash].payload.entries
+        firstUpdate[hash] = updates[hash]
+        delete firstUpdate[updates[hash].payload.predecessor]
+        Object.keys(entries).forEach( (k:Hash) => trustedIds.set(k, entries[k]))
+      }
+    });
+  }
+  return trustedIds
 }
 
 /**
@@ -110,7 +163,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
   const attestationTransactions = await iota.findTransactionObjects({addresses: [address]})
   let attestations:any = {}
   attestationTransactions.forEach((transaction:Transaction) => {
-    attestations[transaction.bundle] = (JSON.parse(trytesToString(transaction.signatureMessageFragment)))
+    attestations[transaction.bundle] = JSON.parse(trytesToString(transaction.signatureMessageFragment))
   })
   // check if the issuer has really signed the attestation
   const issuer = await fetchDid(issuerId, provider)

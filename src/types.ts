@@ -23,9 +23,11 @@ export type Attestation = {
 };
 
 export type TrustedIdMessage = {
+  payload:{
   entries: {
     [x: string]: number;
   };
-  signature: string;
   predecessor?: Hash;
+  };
+  signature: string;
 }

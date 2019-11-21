@@ -1,7 +1,6 @@
 import { Trytes, Hash } from '@iota/core/typings/types';
-import { publishDid, fetchDid, publishClaim, fetchClaims, publishTrustedIds, publishAttestation, fetchAttestation } from './tangleConnector';
+import { publishDid, fetchDid, publishClaim, fetchClaims, publishTrustedIds, fetchTrustedIDs, publishAttestation, fetchAttestation } from './tangleConnector';
 import { DidDocument, MethodSpecId, Claim, Attestation } from './types';
-import { API } from '@iota/core';
 import * as Mam from '@iota/mam';
 import elliptic from 'elliptic';
 import { createHash } from 'crypto';
@@ -64,13 +63,16 @@ export default class DID {
       .map((k) => ({[k]: entries.get(k)!}))
       .reduce((kv, acc) => ({...kv, ...acc}), {});
     
-    const payload = {
+    let payload:any = {
       entries: obj,
-      predecessor: this.lastTrustedIdBundle,
     };
+    if (this.lastTrustedIdBundle !== undefined) {
+      payload.predecessor = this.lastTrustedIdBundle
+    }
+
     const signature = this.keyPair.sign(Buffer.from(JSON.stringify(payload))).toDER('hex');
     const message = {
-      ...payload,
+      payload: payload,
       signature,
     };
     const save = this.mamChannel.channel.start;
@@ -93,7 +95,7 @@ export default class DID {
 
   public async publishDid() {
     if (!this.published) {
-      const result = publishDid(this.mamChannel, this.document);
+      const result = await publishDid(this.mamChannel, this.document);
       this.published = true;
       return result;
     }
@@ -109,6 +111,10 @@ export default class DID {
     } else {
       return doc;
     }
+  }
+
+  static async fetchTrustedIds(id:MethodSpecId, provider = DEFAULT_PROVIDER) {   
+    return fetchTrustedIDs(id, provider)
   }
 
   async createAttestation(claim: Hash, trust = 1.0, provider = DEFAULT_PROVIDER, predecessor?: Hash) {
