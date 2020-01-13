@@ -7,8 +7,7 @@ const did = DID.fromSeed(seed);
 
 console.log(did);
 
-const result = did.publishDid();
-result
-  .then((value) => console.log(value))
+did.publishDid()
+  .then((value) => console.log('DID published. Bundle hash:', value![0].bundle))
   .then(() => DID.fetchDid(did.getMethodSpecificIdentifier()))
   .then((result) => console.log(result));
