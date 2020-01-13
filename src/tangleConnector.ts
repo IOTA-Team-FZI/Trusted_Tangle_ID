@@ -13,6 +13,8 @@ export const DEFAULT_TAG = 'TRUSTED9DID';
 
 const ec = new elliptic.ec('ed25519');
 
+const didCache:any = {}
+
 function trytesToString(input: Trytes) {
   if (input.length % 2) {
     input += '9';
@@ -71,7 +73,10 @@ export function getAttestationAddress(id: MethodSpecId, bundleHash: Hash) {
  */
 export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidDocument | undefined> {
   init(provider);
-  // TODO only fallback to tangle if cache empty
+  if (id in didCache) {
+    console.log('DID ' + id + ' loaded from cache')
+    return didCache[id];
+  }
   const result = await fetchSingle(id, 'public');
 
   if (result instanceof Error || result.payload === undefined) {
@@ -81,7 +86,9 @@ export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidD
       return undefined;
     }
   } else {
-    return JSON.parse(trytesToAscii(result.payload));
+    let fetchedId = JSON.parse(trytesToAscii(result.payload));
+    didCache[id] = fetchedId;
+    return fetchedId;
   }
 }
 
