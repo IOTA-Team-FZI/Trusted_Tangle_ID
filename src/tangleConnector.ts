@@ -218,6 +218,7 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
 
   // check if every issuer has really signed the claim
   for (const hash of Object.keys(claims)) {
+    // TODO buffer issuers
     const issuer = await fetchDid(claims[hash].claim.issuer, provider);
     const signature = claims[hash].signature;
     if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))) {
@@ -241,8 +242,7 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
   while (updated) {
     updated = false
     Object.keys(claims).forEach(hash => {
-        // TODO check for same signature
-        if (claims[hash].claim.predecessor in latestClaims) {
+        if (claims[hash].claim.predecessor in latestClaims && latestClaims[claims[hash].claim.predecessor].claim.issuer == claims[hash].claim.issuer) {
           latestClaims[hash] = claims[hash]
           delete latestClaims[claims[hash].claim.predecessor]
           updated = true
