@@ -31,3 +31,8 @@ export type TrustedIdMessage = {
   };
   signature: string;
 }
+
+export type WOTEntry = {
+  trust: number;
+  entries: Map<Trytes, number>
+}
