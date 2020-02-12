@@ -99,14 +99,14 @@ export async function fetchDid(id: MethodSpecId, provider: string): Promise<DidD
  * @param {Trytes} id - The id of which the trusted ids shall be fetched
  * @param {string} provider
  */
-export async function fetchTrustedIDs(id:MethodSpecId, provider:string) {
+export async function fetchTrustedIDs(id:MethodSpecId, provider:string): Promise<Map<string, number>> {
   init(provider)
   const didStream = await fetchSingle(id, 'public')
   if (didStream instanceof Error) {
-    return didStream
+    throw didStream;
   }
   if (didStream.payload === undefined) {
-    return new Error('Did undefined')
+    throw new Error('Did undefined')
   }
   const did = JSON.parse(trytesToAscii(didStream.payload))
   const iota = composeAPI({
@@ -215,7 +215,7 @@ export async function fetchAttestation(issuerId: MethodSpecId, claimBundleHash: 
  */
 export async function fetchClaims(target: MethodSpecId, type: string, provider: string) {
   const iota = composeAPI({
-    provider: provider
+    provider
   });
   const address = getClaimAddress(target, type);
   const claimTransactions = await iota.findTransactionObjects({addresses: [address]});
@@ -225,7 +225,6 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
 
   // check if every issuer has really signed the claim
   for (const hash of Object.keys(claims)) {
-    // TODO buffer issuers
     const issuer = await fetchDid(claims[hash].claim.issuer, provider);
     const signature = claims[hash].signature;
     if (issuer === undefined || !ec.verify(Buffer.from(JSON.stringify(claims[hash].claim)), signature, ec.keyFromPublic(issuer.publicKey, 'hex'))) {
@@ -238,11 +237,9 @@ export async function fetchClaims(target: MethodSpecId, type: string, provider: 
     return claims
   }
   let latestClaims:any = {}
-  Object.keys(claims).forEach(hash => {
-    if (claims[hash].claim.predecessor === undefined) {
-      latestClaims[hash] = claims[hash]
-    }
-  });
+  Object.keys(claims)
+    .filter(hash => claims[hash].claim.predecessor === undefined)
+    .forEach(hash => latestClaims[hash] = claims[hash]);
 
   let updated = true
 

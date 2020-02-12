@@ -55,7 +55,7 @@ export default class DID {
       }
       this.mamChannel = fromStart;
     }
-    // TODO sync trusted id's as well
+    // TODO sync trusted id's aswell
   }
 
   public async publishTrustedIds(entries: Map<Trytes, number>, provider = DEFAULT_PROVIDER) {  
@@ -113,7 +113,7 @@ export default class DID {
     }
   }
 
-  static async fetchTrustedIds(id:MethodSpecId, provider = DEFAULT_PROVIDER) {   
+  static async fetchTrustedIds(id: MethodSpecId, provider = DEFAULT_PROVIDER) {   
     return fetchTrustedIDs(id, provider)
   }
 

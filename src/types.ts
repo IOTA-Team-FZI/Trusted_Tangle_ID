@@ -23,16 +23,16 @@ export type Attestation = {
 };
 
 export type TrustedIdMessage = {
-  payload:{
-  entries: {
-    [x: string]: number;
-  };
-  predecessor?: Hash;
+  payload: {
+    entries: {
+      [x: string]: number;
+    };
+    predecessor?: Hash;
   };
   signature: string;
 }
 
 export type WOTEntry = {
   trust: number;
-  entries: Map<Trytes, number>
+  trustedIdentities: Map<Trytes, number>
 }
