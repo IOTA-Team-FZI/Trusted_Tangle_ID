@@ -18,12 +18,12 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
 
-	<!-- Define your gradient here - use online tools to find a gradient matching your branding -->
+	<!-- Define your gradient here - use online tools to find a gradient matching your branding-->
 	<style>
 		.gradient {
 			background: linear-gradient(90deg, #007348 30%, #027be3 100%);
 		}
-        .no-gradient {
+		.no-gradient {
             background: #007348;
         }
 	</style>
@@ -39,20 +39,27 @@
 			
 		<div class="pl-4 flex items-center">
 			<a class="toggleColour text-white no-underline hover:no-underline font-bold text-2xl lg:text-4xl"  href="#"> 
+				<!--Icon from: http://www.potlabicons.com/ -->
 				DISI
 			</a>
 		</div>
 
+		<div class="block lg:hidden pr-4">
+			<button id="nav-toggle" class="flex items-center p-1 text-orange-800 hover:text-gray-900">
+				<svg class="fill-current h-6 w-6" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+			</button>
+		</div>
 
 		<div class="w-full flex-grow lg:flex lg:items-center lg:w-auto hidden lg:block mt-2 lg:mt-0 bg-white lg:bg-transparent text-black p-4 lg:p-0 z-20" id="nav-content">
 			<ul class="list-reset lg:flex justify-end flex-1 items-center">
 				<li class="mr-3">
-					<a class="inline-block py-2 px-4 text-black font-bold no-underline" href="#">Active</a>
+					<a class="inline-block text-black no-underline hover:text-gray-800 hover:text-underline py-2 px-4" href="#">link</a>
+				</li>
+				<li class="mr-3">
+					<a class="inline-block text-black no-underline hover:text-gray-800 hover:text-underline py-2 px-4" href="specification.pdf">Specification</a>
 				</li>
 			</ul>
-            <a href="https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID" class="button mx-auto lg:mx-0 hover:underline bg-white no-gradient font-bold rounded-full mt-4 lg:mt-0 py-4 px-8 shadow">
-				Github
-			</a>
+			<button onclick="location.href='https://github.com/F-Node-Karlsruhe/Trusted_Tangle_ID';" id="navAction" class="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full mt-4 lg:mt-0 py-4 px-8 shadow no-gradient">Github</button>
 		</div>
 	</div>
 	
@@ -69,11 +76,11 @@
 		<!--Left Col-->
 		<div class="flex flex-col w-full md:w-2/5 justify-center items-start text-center md:text-left">
 			<h1 class="my-4 text-5xl font-bold leading-tight">A Trust and Identity Protocol for the Internet of Things</h1>
-			<p class="leading-normal text-2xl mb-8">built with IOTA</p>
+			<p class="leading-normal text-2xl mb-8 w-full">built with IOTA</p>
 		
 			
 
-			<a href="#properties" class="button mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg">Learn more</a>
+			<button onclick="location.href='#properties';" class="mx-auto lg:mx-0 hover:underline bg-white text-gray-800 font-bold rounded-full my-6 py-4 px-8 shadow-lg">Learn more</button>
 			
 		</div>
 		<!--Right Col-->
@@ -103,14 +110,14 @@
 
 
 
-<section id="properties" class="bg-white border-b py-16">
+<section id="properties" class="bg-white border-b py-8">
 	<div class="container max-w-5xl mx-auto m-8">
 		<h1 class="w-full my-2 text-5xl font-bold leading-tight text-center text-gray-800">Bringing self sovereign identity on DLT</h1>
-		<div class="w-full mb-4">	
+		<div class="w-full my-4">	
 			<div class="h-1 mx-auto gradient w-64 opacity-25 my-0 py-0 rounded-t"></div>
 		</div>
 	
-		<div class="flex flex-wrap pt-16">
+		<div class="flex flex-wrap sm:mt-12">
 			<div class="w-5/6 sm:w-1/2 p-6">
 				<h3 class="text-3xl text-gray-800 font-bold leading-none mb-3">Permissionless</h3>
 				<p class="text-gray-600 mb-8">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at ipsum eu nunc commodo posuere et sit amet ligula.<br /><br />
@@ -119,14 +126,14 @@
 				
 			</div>
 			<div class="w-full sm:w-1/2 p-6">
-				<img class="w-full md:w-4/5 z-50 m-6" src="permissionless.png">
+				<img class="w-full mx-auto" src="permissionless.png"/>
 			</div>
 		</div>
 		
 		
-		<div class="flex flex-wrap flex-col-reverse sm:flex-row mt-16">
+		<div class="flex flex-wrap flex-col-reverse sm:flex-row sm:mt-12">	
 			<div class="w-full sm:w-1/2 p-6">
-				<img class="w-full md:w-5/5 z-50 m-6" src="scalable.png">
+				<img class="w-5/6 mx-auto" src="scalable.png"/>
 			</div>
 			<div class="w-full sm:w-1/2 p-6">
 				<div class="align-middle">
@@ -138,17 +145,26 @@
 
 		</div>
 
-		<div class="flex flex-wrap flex-col-reverse sm:flex-row mt-16">
-			<div class="w-5/6 sm:w-1/2 p-6">
-				<h3 class="text-3xl text-gray-800 font-bold leading-none mb-3">Following W3C DID standard</h3>
-				<p class="text-gray-600 mb-8">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at ipsum eu nunc commodo posuere et sit amet ligula.<br /><br />
-				
-				Images from: <a class="text-orange-500 underline" href="https://undraw.co/">undraw.co</a></p>
-				
-			</div>
+		<div class="flex flex-wrap flex-col-reverse sm:flex-row sm:mt-12">	
 			<div class="w-full sm:w-1/2 p-6">
-				<img class="w-full md:w-4/5 z-50 m-6" src="permissionless.png">
+				<div class="align-middle">
+					<h3 class="text-3xl text-gray-800 font-bold leading-none mb-3">Following W3C DID standard</h3>
+					<p class="text-gray-600 mb-8">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at ipsum eu nunc commodo posuere et sit amet ligula.<br /><br />
+					Images from: <a class="text-orange-500 underline" href="https://undraw.co/">undraw.co</a></p>
+				</div>
 			</div>
+
+			<!--<div class="w-full sm:w-1/2 p-6">
+				<img class="w-5/6 mx-auto" src="scalable.png"/>
+			</div>-->
+
+		</div>
+
+		<div class="w-full my-4">	
+			<div class="h-1 mx-auto gradient w-64 opacity-25 my-0 py-0 rounded-t"></div>
+		</div>
+		<div class="w-full text-center">
+			<button onclick="location.href='https://iota-team-fzi.github.io/Trusted_Tangle_ID/specification.pdf';" id="navAction" class="mx-auto lg:mx-0 hover:underline bg-white text-white font-bold rounded-full mt-4 lg:mt-0 py-4 px-8 shadow no-gradient">Specification</button>
 		</div>
 	</div>
 </section>
@@ -160,7 +176,7 @@
 	
 	<div class="container mx-auto flex flex-wrap pt-4 pb-12">
 	
-		<h1 class="w-full my-2 text-5xl font-bold leading-tight text-center text-gray-800">Title</h1>
+		<h1 class="w-full my-2 text-5xl font-bold leading-tight text-center text-gray-800">Team</h1>
 		<div class="w-full mb-4">	
 			<div class="h-1 mx-auto gradient w-64 opacity-25 my-0 py-0 rounded-t"></div>
 		</div>
@@ -177,7 +193,7 @@
 			</div>
 			<div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow p-6">
 				<div class="flex items-center justify-start">
-					<button class="mx-auto lg:mx-0 hover:underline no-gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
+					<button class="mx-auto lg:mx-0 hover:underline gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
 				</div>
 			</div>
 		</div>
@@ -196,7 +212,7 @@
 			</div>
 			<div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow p-6">
 				<div class="flex items-center justify-center">
-					<button class="mx-auto lg:mx-0 hover:underline no-gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
+					<button class="mx-auto lg:mx-0 hover:underline gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
 				</div>
 			</div>
 		</div>
@@ -215,7 +231,7 @@
 			</div>
 			<div class="flex-none mt-auto bg-white rounded-b rounded-t-none overflow-hidden shadow p-6">
 				<div class="flex items-center justify-end">
-					<button class="mx-auto lg:mx-0 hover:underline no-gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
+					<button class="mx-auto lg:mx-0 hover:underline gradient text-white font-bold rounded-full my-6 py-4 px-8 shadow-lg">Action</button>
 				</div>
 			</div>
 		</div>
@@ -224,7 +240,6 @@
 	</div>
 
 </section>
-
 
 
 
@@ -363,6 +378,7 @@
     if(scrollpos > 10){
       header.classList.add("bg-white");
 	  navaction.classList.remove("bg-white");
+	  navaction.classList.add("gradient");
 	  navaction.classList.remove("text-gray-800");
 	  navaction.classList.add("text-white");
 	  //Use to switch toggleColour colours
@@ -379,7 +395,7 @@
 	  navaction.classList.remove("gradient");
 	  navaction.classList.add("bg-white");
 	  navaction.classList.remove("text-white");
-	  // navaction.classList.add("text-gray-800");
+	  navaction.classList.add("text-gray-800");
 	  //Use to switch toggleColour colours
   	  for (var i = 0; i < toToggle.length; i++) {
 	     toToggle[i].classList.add("text-white");
